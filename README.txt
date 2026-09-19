@@ -1,15 +1,14 @@
-DODGE V2 — Supabase Leaderboard
+DODGE V2 — FINAL
 
-The game is a static HTML game. Supabase is connected with the public publishable key.
+This package is the final GitHub Pages build.
 
-Already configured in index.html:
-- Project URL: https://bzmpmgrzrhkraubosvwp.supabase.co
-- Publishable key: sb_publishable_...
-- Global leaderboard read
-- Score submission UI
-- Player nickname + 2-letter country code
+Files:
+- index.html — complete game + Supabase leaderboard connection
+- manifest.json — PWA metadata
+- sw.js — lightweight service worker without stale-page caching
+- supabase.sql — INSERT RLS policy for public score submission
 
-ONE Supabase setup step remains:
-Run supabase.sql once in the Supabase SQL Editor. This adds the INSERT RLS policy needed for the public game client to submit scores.
+Supabase project is already configured in index.html with the public publishable key.
+Do not replace it with a secret key.
 
-Do NOT use or publish a Supabase secret key.
+If the Supabase INSERT policy has already been created, no SQL action is needed.

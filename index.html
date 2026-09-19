@@ -1,31 +1,104 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1697827837177436" crossorigin="anonymous"></script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#070b16">
 <title>躲避！ Dodge V2</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#05070b">
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#070b16;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}#app{position:relative;width:min(100vw,520px);height:100vh;margin:auto;overflow:hidden;background:radial-gradient(circle at 50% 18%,#243c72,#080b14 68%)}canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}.pill{padding:7px 10px;border:1px solid #fff2;border-radius:13px;background:#ffffff12;backdrop-filter:blur(10px);font-size:12px}.pill b{font-size:16px}.bar{position:absolute;top:59px;left:12px;right:12px;height:5px;background:#fff2;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#fff;border-radius:9px}.screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;background:#050812aa;backdrop-filter:blur(6px);z-index:5}.card{width:min(92%,410px);background:#10182b;border:1px solid #fff2;border-radius:24px;padding:24px;box-shadow:0 25px 80px #0009;text-align:center}h1{margin:0 0 5px;font-size:42px}h2{margin:0 0 10px}p{opacity:.78;line-height:1.5}.row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:16px}button{border:0;border-radius:14px;padding:12px 17px;font-size:16px;font-weight:800;cursor:pointer;background:#fff;color:#08101f}button.alt{background:#ffffff16;color:#fff;border:1px solid #fff2}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.skin{padding:12px 5px;border-radius:13px;background:#ffffff0e;border:1px solid #fff1;cursor:pointer}.skin.lock{opacity:.45}.dot{width:28px;height:28px;border-radius:50%;margin:auto auto 6px;background:#fff;box-shadow:0 0 16px #fff}.small{font-size:11px;opacity:.5;margin-top:12px}.input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #fff2;background:#ffffff0b;color:#fff;margin-top:8px;font-size:15px;outline:none}.input::placeholder{color:#fff7}.lb{max-height:52vh;overflow:auto;margin-top:12px;text-align:left}.lbrow{display:grid;grid-template-columns:38px 1fr 70px 46px;gap:7px;padding:9px 6px;border-bottom:1px solid #fff1;font-size:13px}.lbhead{opacity:.45;font-size:11px}.hidden{display:none}#toast{position:absolute;left:50%;top:75px;transform:translateX(-50%);padding:8px 12px;background:#111a2de8;border:1px solid #fff2;border-radius:12px;opacity:0;transition:.2s;z-index:8;pointer-events:none}
-</style></head>
-<body><div id="app"><canvas id="c"></canvas><div class="hud"><div class="pill">分数 <b id="score">0</b> · <span id="level">Lv.1</span></div><div class="pill">🪙 <b id="coins">0</b>　🏆 <b id="best">0</b></div></div><div class="bar"><i id="xp"></i></div><div id="toast"></div>
-<div id="home" class="screen"><div class="card"><h1>躲避！</h1><p>V2 商业版 · 躲开障碍，收集金币，解锁皮肤。</p><input id="playerName" class="input" maxlength="24" placeholder="昵称（排行榜显示）"><input id="playerCountry" class="input" maxlength="2" value="US" placeholder="国家代码，如 US"><div class="row"><button id="play">开始游戏</button><button class="alt" id="shop">皮肤商店</button><button class="alt" id="leaderboardBtn">🏆 排行榜</button></div><p id="cloudStatus" class="small">云端排行榜连接中…</p><p class="small">支持手机拖动、电脑鼠标、方向键 / WASD</p></div></div>
-<div id="leaderboardScreen" class="screen hidden"><div class="card"><h2>🏆 全球排行榜</h2><div class="row"><button id="refreshLb">刷新</button><button class="alt" id="closeLb">返回</button></div><div class="lb"><div class="lbrow lbhead"><span>#</span><span>玩家</span><span>分数</span><span>国家</span></div><div id="lbRows"></div></div><p id="lbStatus" class="small">正在读取…</p></div></div>
-<div id="shopScreen" class="screen hidden"><div class="card"><h2>🛍️ 皮肤商店</h2><p>选择你喜欢的球。金币保存在本机。</p><div id="skins" class="grid"></div><div class="row"><button class="alt" id="back">返回</button></div></div></div>
-<div id="over" class="screen hidden"><div class="card"><h2>游戏结束</h2><p>本局 <b id="finalScore">0</b>　最高 <b id="finalBest">0</b><br>获得金币 <b id="earned">0</b></p><div class="row"><button id="submitScore">☁️ 提交成绩</button><button class="alt" id="overLb">🏆 看排行榜</button><button id="revive">🎬 观看广告复活</button><button id="again">再来一次</button><button class="alt" id="homeBtn">主菜单</button></div><p id="reviveHint" class="small">广告功能演示版：以后接入 Google 激励广告后，观看完整广告即可复活。</p></div></div>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#070b16;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+#app{position:relative;width:min(100vw,520px);height:100vh;margin:auto;overflow:hidden;background:radial-gradient(circle at 50% 18%,#243c72,#080b14 68%)}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;z-index:2}
+.pill{padding:7px 10px;border:1px solid #fff2;border-radius:13px;background:#ffffff12;backdrop-filter:blur(10px);font-size:12px}.pill b{font-size:16px}
+.bar{position:absolute;top:59px;left:12px;right:12px;height:5px;background:#fff2;border-radius:9px;overflow:hidden;z-index:2}.bar i{display:block;height:100%;width:0;background:#fff;border-radius:9px}
+.screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;background:#050812aa;backdrop-filter:blur(6px);z-index:5}
+.card{width:min(92%,410px);background:#10182b;border:1px solid #fff2;border-radius:24px;padding:24px;box-shadow:0 25px 80px #0009;text-align:center}
+h1{margin:0 0 5px;font-size:42px}h2{margin:0 0 10px}p{opacity:.78;line-height:1.5}
+.row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+button{border:0;border-radius:14px;padding:12px 17px;font-size:16px;font-weight:800;cursor:pointer;background:#fff;color:#08101f}
+button.alt{background:#ffffff16;color:#fff;border:1px solid #fff2}
+button:active{transform:scale(.98)}
+input,select{width:100%;padding:13px 14px;margin-top:10px;border-radius:14px;border:1px solid #fff2;background:#ffffff0d;color:#fff;font-size:16px;outline:none}
+select option{color:#111}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.skin{padding:12px 5px;border-radius:13px;background:#ffffff0e;border:1px solid #fff1;cursor:pointer}.skin.lock{opacity:.45}
+.dot{width:28px;height:28px;border-radius:50%;margin:auto auto 6px;background:#fff;box-shadow:0 0 16px #fff}
+.small{font-size:11px;opacity:.55;margin-top:12px}.hidden{display:none!important}
+#toast{position:absolute;left:50%;top:75px;transform:translateX(-50%);padding:8px 12px;background:#111a2de8;border:1px solid #fff2;border-radius:12px;opacity:0;transition:.2s;z-index:8;pointer-events:none}
+#cloudStatus{font-size:12px;opacity:.6;margin-top:12px}
+#board{max-height:45vh;overflow:auto;text-align:left;margin-top:12px}.rank{display:flex;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #fff1}.rank b{min-width:30px}
+</style>
+</head>
+<body>
+<div id="app">
+<canvas id="c"></canvas>
+<div class="hud"><div class="pill">分数 <b id="score">0</b> · <span id="level">Lv.1</span></div><div class="pill">🪙 <b id="coins">0</b>　🏆 <b id="best">0</b></div></div>
+<div class="bar"><i id="xp"></i></div><div id="toast"></div>
+
+<div id="home" class="screen">
+ <div class="card">
+  <h1>躲避！</h1>
+  <p>V2 商业版 · 躲开障碍，收集金币，解锁皮肤。</p>
+  <input id="player" maxlength="20" placeholder="昵称（排行榜显示）">
+  <select id="country"><option value="US">US</option><option value="CA">CA</option><option value="JP">JP</option><option value="CN">CN</option><option value="GB">GB</option><option value="KR">KR</option></select>
+  <div class="row"><button id="play">开始游戏</button><button class="alt" id="shop">皮肤商店</button></div>
+  <div class="row"><button class="alt" id="leaderboard">🏆 排行榜</button></div>
+  <div id="cloudStatus">云端排行榜连接中…</div>
+  <p class="small">支持手机拖动、电脑鼠标、方向键 / WASD</p>
+ </div>
 </div>
+
+<div id="shopScreen" class="screen hidden"><div class="card"><h2>🛍️ 皮肤商店</h2><p>选择你喜欢的球。金币保存在本机。</p><div id="skins" class="grid"></div><div class="row"><button class="alt" id="back">返回</button></div></div></div>
+
+<div id="boardScreen" class="screen hidden"><div class="card"><h2>🏆 排行榜</h2><div id="board">加载中…</div><div class="row"><button class="alt" id="boardBack">返回</button></div></div></div>
+
+<div id="over" class="screen hidden"><div class="card"><h2>游戏结束</h2><p>本局 <b id="finalScore">0</b>　最高 <b id="finalBest">0</b><br>获得金币 <b id="earned">0</b></p><div class="row"><button id="again">再来一次</button><button class="alt" id="homeBtn">主菜单</button></div><p id="submitStatus" class="small">正在提交排行榜…</p></div></div>
+</div>
+
 <script>
-const c=document.getElementById('c'),ctx=c.getContext('2d'),app=document.getElementById('app');const SUPABASE_URL='https://bzmpmgrzrhkraubosvwp.supabase.co';const SUPABASE_PUBLISHABLE_KEY='sb_publishable_bskneOG7n66vdR2xgFn-cw_cljk8rjq';const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);let W=0,H=0,dpr=1,last=0,running=false,score=0,level=1,spawnTimer=0,speed=220,coins=+localStorage.dodgeCoinsV2||0,best=+localStorage.dodgeBestV2||0,earned=0,reviveUsed=false;const owned=JSON.parse(localStorage.dodgeSkins||'["white"]');let selected=localStorage.dodgeSkin||'white';const skins=[{id:'white',name:'经典',cost:0,color:'#fff'},{id:'cyan',name:'霓虹',cost:40,color:'#64f7ff'},{id:'gold',name:'黄金',cost:120,color:'#ffd45c'},{id:'violet',name:'紫电',cost:220,color:'#c58cff'},{id:'lime',name:'能量',cost:350,color:'#b9ff63'},{id:'rose',name:'玫瑰',cost:500,color:'#ff7fa8'}];let p={x:0,y:0,r:13},obs=[],particles=[],keys={};
-const nameEl=document.getElementById('playerName'),countryEl=document.getElementById('playerCountry'),cloudStatus=document.getElementById('cloudStatus'),lbRows=document.getElementById('lbRows'),lbStatus=document.getElementById('lbStatus');nameEl.value=localStorage.dodgePlayer||'';countryEl.value=(localStorage.dodgeCountry||'US').toUpperCase();function playerInfo(){const player=(nameEl.value.trim()||'Player').slice(0,24);const country=(countryEl.value.trim().toUpperCase()||'US').slice(0,2);localStorage.dodgePlayer=player;localStorage.dodgeCountry=country;return {player,country}}async function testCloud(){const {error}=await supabase.from('leaderboard').select('id').limit(1);cloudStatus.textContent=error?'云端排行榜暂未开放':'☁️ 云端排行榜已连接'}async function loadLeaderboard(){lbRows.innerHTML='';lbStatus.textContent='正在读取…';const {data,error}=await supabase.from('leaderboard').select('player,score,country').order('score',{ascending:false}).limit(20);if(error){lbStatus.textContent='读取失败：'+error.message;return}data.forEach((r,i)=>{const d=document.createElement('div');d.className='lbrow';d.innerHTML=`<span>${i+1}</span><span>${String(r.player||'Player').replace(/[<>]/g,'')}</span><b>${Number(r.score)||0}</b><span>${String(r.country||'--').toUpperCase().slice(0,2)}</span>`;lbRows.appendChild(d)});lbStatus.textContent=data.length?'显示前 20 名':'还没有成绩，成为第一个上榜的人！'}async function submitScore(){const {player,country}=playerInfo();const value=Math.floor(score);if(value<=0)return;document.getElementById('submitScore').disabled=true;const {error}=await supabase.from('leaderboard').insert({player,score:value,country});document.getElementById('submitScore').disabled=false;if(error){toast('提交失败：请先开启排行榜写入权限');return}toast('☁️ 成绩已提交！');loadLeaderboard()}
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=app.clientWidth;H=app.clientHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);p.x=W/2;p.y=H*.78}addEventListener('resize',resize);resize();function save(){localStorage.dodgeCoinsV2=coins;localStorage.dodgeBestV2=best;localStorage.dodgeSkins=JSON.stringify(owned);localStorage.dodgeSkin=selected}const scoreEl=document.getElementById('score'),coinsEl=document.getElementById('coins'),bestEl=document.getElementById('best');function ui(){scoreEl.textContent=Math.floor(score);coinsEl.textContent=coins;bestEl.textContent=best;level=Math.floor(score/120)+1;document.getElementById('level').textContent='Lv.'+level;document.getElementById('xp').style.width=((score%120)/120*100)+'%'}function show(id){['home','shopScreen','over','leaderboardScreen'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id))}function toast(t){const e=document.getElementById('toast');e.textContent=t;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,900)}function renderShop(){const box=document.getElementById('skins');box.innerHTML='';skins.forEach(s=>{const d=document.createElement('div');d.className='skin'+(owned.includes(s.id)?'':' lock');d.innerHTML=`<div class="dot" style="background:${s.color}"></div><b>${s.name}</b><div>${owned.includes(s.id)?'已拥有':s.cost+' 🪙'}</div>`;d.onclick=()=>{if(owned.includes(s.id)){selected=s.id;save();toast('已装备：'+s.name);renderShop()}else if(coins>=s.cost){coins-=s.cost;owned.push(s.id);selected=s.id;save();toast('解锁成功！');renderShop()}else toast('金币不够')};box.appendChild(d)})}
-function reset(){score=0;level=1;speed=220;spawnTimer=.3;earned=0;obs=[];particles=[];reviveUsed=false;p.x=W/2;p.y=H*.78;ui()}function play(){reset();running=true;show('none');last=performance.now();requestAnimationFrame(loop)}
-function end(){running=false;best=Math.max(best,Math.floor(score));save();document.getElementById('finalScore').textContent=Math.floor(score);document.getElementById('finalBest').textContent=best;document.getElementById('earned').textContent=earned;document.getElementById('revive').classList.toggle('hidden',reviveUsed);document.getElementById('reviveHint').textContent=reviveUsed?'本局复活机会已使用。':'广告功能演示版：以后接入 Google 激励广告后，观看完整广告即可复活。';show('over')}
-function revive(){if(reviveUsed)return;reviveUsed=true;document.getElementById('revive').classList.add('hidden');document.getElementById('reviveHint').textContent='广告播放中…';toast('🎬 广告演示中');setTimeout(()=>{obs=[];particles=[];p.x=W/2;p.y=H*.78;score+=25;speed=Math.max(220,speed*.9);running=true;show('none');last=performance.now();toast('❤️ 复活成功！');requestAnimationFrame(loop)},1200)}
-function move(x,y){p.x=Math.max(p.r,Math.min(W-p.r,x));p.y=Math.max(82,Math.min(H-p.r,y))}c.addEventListener('pointermove',e=>{if(running){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});c.addEventListener('pointerdown',e=>{if(running){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '&&!running)play()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-function spawnObstacle(){const size=18+Math.random()*34;obs.push({x:size/2+Math.random()*(W-size),y:-size,size,vy:speed*(.72+Math.random()*.55),rot:Math.random()*6.28,vr:(Math.random()-.5)*3})}function particle(x,y,n=10){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*180,vy:(Math.random()-.5)*180,life:.5+Math.random()*.5})}function collide(o){const dx=Math.abs(p.x-o.x),dy=Math.abs(p.y-(o.y+o.size/2));return dx<p.r+o.size/2&&dy<p.r+o.size/2}
+const SUPABASE_URL='https://bzmpmgrzrhkraubosvwp.supabase.co';
+const SUPABASE_KEY='sb_publishable_bskneOG7n66vdR2xgFn-cw_cljk8rjq';
+
+const c=document.getElementById('c'),ctx=c.getContext('2d'),app=document.getElementById('app');
+let W=0,H=0,dpr=1,last=0,running=false,score=0,level=1,spawnTimer=0,speed=220,coins=+localStorage.dodgeCoinsV2||0,best=+localStorage.dodgeBestV2||0,earned=0;
+const owned=JSON.parse(localStorage.dodgeSkins||'["white"]');let selected=localStorage.dodgeSkin||'white';
+const skins=[{id:'white',name:'经典',cost:0,color:'#fff'},{id:'cyan',name:'霓虹',cost:40,color:'#64f7ff'},{id:'gold',name:'黄金',cost:120,color:'#ffd45c'},{id:'violet',name:'紫电',cost:220,color:'#c58cff'},{id:'lime',name:'能量',cost:350,color:'#b9ff63'},{id:'rose',name:'玫瑰',cost:500,color:'#ff7fa8'}];
+let p={x:0,y:0,r:13},obs=[],particles=[],keys={};
+
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=app.clientWidth;H=app.clientHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(!running){p.x=W/2;p.y=H*.78}}addEventListener('resize',resize);resize();
+function save(){localStorage.dodgeCoinsV2=coins;localStorage.dodgeBestV2=best;localStorage.dodgeSkins=JSON.stringify(owned);localStorage.dodgeSkin=selected}
+function ui(){document.getElementById('score').textContent=Math.floor(score);document.getElementById('coins').textContent=coins;document.getElementById('best').textContent=best;level=Math.floor(score/120)+1;document.getElementById('level').textContent='Lv.'+level;document.getElementById('xp').style.width=((score%120)/120*100)+'%'}
+function show(id){['home','shopScreen','boardScreen','over'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id))}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,900)}
+function renderShop(){const box=document.getElementById('skins');box.innerHTML='';skins.forEach(s=>{const d=document.createElement('div');d.className='skin'+(owned.includes(s.id)?'':' lock');d.innerHTML='<div class="dot" style="background:'+s.color+'"></div><b>'+s.name+'</b><div>'+(owned.includes(s.id)?'已拥有':s.cost+' 🪙')+'</div>';d.onclick=()=>{if(owned.includes(s.id)){selected=s.id;save();toast('已装备：'+s.name);renderShop()}else if(coins>=s.cost){coins-=s.cost;owned.push(s.id);selected=s.id;save();toast('解锁成功！');renderShop()}else toast('金币不够')};box.appendChild(d)})}
+function reset(){score=0;level=1;speed=220;spawnTimer=.3;earned=0;obs=[];particles=[];p.x=W/2;p.y=H*.78;ui()}
+function play(){const name=document.getElementById('player').value.trim();if(!name){toast('请先输入昵称');document.getElementById('player').focus();return}reset();running=true;show('none');last=performance.now();requestAnimationFrame(loop)}
+function end(){running=false;best=Math.max(best,Math.floor(score));save();document.getElementById('finalScore').textContent=Math.floor(score);document.getElementById('finalBest').textContent=best;document.getElementById('earned').textContent=earned;show('over');submitScore()}
+function move(x,y){p.x=Math.max(p.r,Math.min(W-p.r,x));p.y=Math.max(82,Math.min(H-p.r,y))}
+c.addEventListener('pointermove',e=>{if(running){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});c.addEventListener('pointerdown',e=>{if(running){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '&&!running)play()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+function spawnObstacle(){const size=18+Math.random()*34;obs.push({x:size/2+Math.random()*(W-size),y:-size,size,vy:speed*(.72+Math.random()*.55),rot:Math.random()*6.28,vr:(Math.random()-.5)*3})}
+function particle(x,y,n=10){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*180,vy:(Math.random()-.5)*180,life:.5+Math.random()*.5})}
+function collide(o){const dx=Math.abs(p.x-o.x),dy=Math.abs(p.y-(o.y+o.size/2));return dx<p.r+o.size/2&&dy<p.r+o.size/2}
 function draw(t){ctx.clearRect(0,0,W,H);for(let i=0;i<55;i++){let x=(i*83)%W,y=((i*137+t*.015)%H);ctx.globalAlpha=.12;ctx.fillStyle='#fff';ctx.fillRect(x,y,1.5,1.5)}ctx.globalAlpha=1;for(const o of obs){ctx.save();ctx.translate(o.x,o.y+o.size/2);ctx.rotate(o.rot);ctx.fillStyle='#ff5367';ctx.shadowBlur=18;ctx.shadowColor='#ff536788';ctx.fillRect(-o.size/2,-o.size/2,o.size,o.size);ctx.restore()}const s=skins.find(x=>x.id===selected)||skins[0];ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle=s.color;ctx.shadowBlur=24;ctx.shadowColor=s.color;ctx.fill();ctx.shadowBlur=0;for(const q of particles){ctx.globalAlpha=Math.max(0,q.life);ctx.fillStyle='#fff';ctx.fillRect(q.x,q.y,3,3)}ctx.globalAlpha=1}
 function loop(t){if(!running)return;const dt=Math.min((t-last)/1000,.035);last=t;if(keys.arrowleft||keys.a)p.x-=370*dt;if(keys.arrowright||keys.d)p.x+=370*dt;if(keys.arrowup||keys.w)p.y-=370*dt;if(keys.arrowdown||keys.s)p.y+=370*dt;move(p.x,p.y);score+=dt*10;speed+=dt*3.2;ui();spawnTimer-=dt;if(spawnTimer<=0){spawnObstacle();spawnTimer=Math.max(.16,.68-score/850)}for(let i=obs.length-1;i>=0;i--){let o=obs[i];o.y+=o.vy*dt;o.rot+=o.vr*dt;if(collide(o)){particle(p.x,p.y,24);end();return}if(o.y>H+60){obs.splice(i,1);earned++;if(earned%3===0)coins++}}for(let i=particles.length-1;i>=0;i--){let q=particles[i];q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.96;q.vy*=.96;q.life-=dt;if(q.life<=0)particles.splice(i,1)}draw(t);requestAnimationFrame(loop)}
-document.getElementById('leaderboardBtn').onclick=()=>{show('leaderboardScreen');loadLeaderboard()};document.getElementById('refreshLb').onclick=loadLeaderboard;document.getElementById('closeLb').onclick=()=>show('home');document.getElementById('overLb').onclick=()=>{show('leaderboardScreen');loadLeaderboard()};document.getElementById('submitScore').onclick=submitScore;document.getElementById('play').onclick=play;document.getElementById('again').onclick=play;document.getElementById('revive').onclick=revive;document.getElementById('homeBtn').onclick=()=>show('home');document.getElementById('shop').onclick=()=>{renderShop();show('shopScreen')};document.getElementById('back').onclick=()=>show('home');ui();draw(0);testCloud();
-</script><script>if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js');});}</script>
-</body></html>
+
+async function checkCloud(){
+ try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=id&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});document.getElementById('cloudStatus').textContent=r.ok?'☁️ 云端排行榜已连接':'⚠️ 云端排行榜连接失败';}
+ catch(e){document.getElementById('cloudStatus').textContent='⚠️ 云端排行榜连接失败'}
+}
+async function submitScore(){
+ const status=document.getElementById('submitStatus');const player=document.getElementById('player').value.trim();const country=document.getElementById('country').value;status.textContent='正在提交排行榜…';
+ try{
+  const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({player,score:Math.floor(score),country})});
+  status.textContent=r.ok?'☁️ 分数已提交到云端排行榜':'⚠️ 分数提交失败（游戏本身不受影响）';
+ }catch(e){status.textContent='⚠️ 网络连接失败（游戏本身不受影响）'}
+}
+async function loadBoard(){show('boardScreen');const box=document.getElementById('board');box.textContent='加载中…';try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&order=score.desc&limit=20',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(!r.ok)throw 0;const rows=await r.json();box.innerHTML=rows.length?rows.map((x,i)=>'<div class="rank"><b>#'+(i+1)+'</b><span>'+esc(x.player)+' ('+esc(x.country||'')+')</span><strong>'+x.score+'</strong></div>').join(''):'暂无成绩';}catch(e){box.textContent='排行榜暂时无法加载'}}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+document.getElementById('play').onclick=play;document.getElementById('again').onclick=play;document.getElementById('homeBtn').onclick=()=>show('home');document.getElementById('shop').onclick=()=>{renderShop();show('shopScreen')};document.getElementById('back').onclick=()=>show('home');document.getElementById('leaderboard').onclick=loadBoard;document.getElementById('boardBack').onclick=()=>show('home');
+ui();draw(0);checkCloud();
+</script>
+</body>
+</html>

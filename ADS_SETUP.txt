@@ -1,23 +1,6 @@
-DODGE V2 激励广告一次性配置
+真实激励广告配置
 
-当前游戏已经接好 Web 激励广告流程：
-1. 游戏结束显示“📺 看广告复活”。
-2. 用户主动点击后才展示激励广告。
-3. 只有 Google Publisher Tag 的 rewardedSlotGranted 事件触发后才发放复活。
-4. 广告提前关闭不会复活。
-5. 每局最多复活 1 次，复活后 3 秒无敌。
-6. 广告不可用会提示“广告暂时不可用，请稍后再试”。
+当前 ads-config.js 默认：window.DODGE_ADS_READY = false。
+这样不会在没有真实广告的情况下伪造“看完广告”。
 
-唯一需要你提供/配置的东西：Google Ad Manager 的真实 rewarded ad unit path。
-
-打开 ads-config.js，把：
-rewardedAdUnit: ''
-改成类似：
-rewardedAdUnit: '/1234567/revive'
-
-上面的数字只是格式示例，不是可用广告位。
-
-Google 官方文档：
-https://developers.google.com/publisher-tag/reference
-
-开发阶段建议使用 Google 提供的测试广告配置；正式上线再换成自己的广告位。
+正式上线时，需要使用你的广告平台账号创建 Web Rewarded/激励广告位，并将真实 SDK 的“奖励已发放”回调接到游戏 revive() 流程，再把 DODGE_ADS_READY 设置为 true。

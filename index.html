@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#070b16">
 <title>躲避！ Dodge V2</title>
+<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+<script src="ads-config.js"></script>
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#070b16;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 #app{position:relative;width:min(100vw,520px);height:100vh;margin:auto;overflow:hidden;background:radial-gradient(circle at 50% 18%,#243c72,#080b14 68%)}
@@ -19,9 +21,10 @@ h1{margin:0 0 5px;font-size:42px}h2{margin:0 0 10px}p{opacity:.78;line-height:1.
 button{border:0;border-radius:14px;padding:12px 17px;font-size:16px;font-weight:800;cursor:pointer;background:#fff;color:#08101f}
 button.alt{background:#ffffff16;color:#fff;border:1px solid #fff2}
 button:active{transform:scale(.98)}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
 input,select{width:100%;padding:13px 14px;margin-top:10px;border-radius:14px;border:1px solid #fff2;background:#ffffff0d;color:#fff;font-size:16px;outline:none}
 select option{color:#111}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.skin{padding:12px 5px;border-radius:13px;background:#ffffff0e;border:1px solid #fff1;cursor:pointer}.skin.lock{opacity:.45}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:15px;max-height:52vh;overflow:auto;padding-right:2px}.skin{padding:14px 8px;border-radius:15px;background:#ffffff0e;border:1px solid #fff1;cursor:pointer;transition:.15s}.skin:hover{background:#ffffff16;transform:translateY(-1px)}.skin.lock{opacity:.62}.skin.equipped{border-color:#fff8;background:#ffffff1b}.skinDesc{font-size:11px;opacity:.55;margin-top:3px}.skinAction{font-size:12px;margin-top:7px;font-weight:800}.shopBalance{display:inline-block;padding:7px 12px;border-radius:12px;background:#ffffff12;border:1px solid #fff2}.shopCard{max-height:92vh;overflow:hidden}
 .dot{width:28px;height:28px;border-radius:50%;margin:auto auto 6px;background:#fff;box-shadow:0 0 16px #fff}
 .small{font-size:11px;opacity:.55;margin-top:12px}.hidden{display:none!important}
 #toast{position:absolute;left:50%;top:75px;transform:translateX(-50%);padding:8px 12px;background:#111a2de8;border:1px solid #fff2;border-radius:12px;opacity:0;transition:.2s;z-index:8;pointer-events:none}
@@ -44,15 +47,15 @@ select option{color:#111}
   <div class="row"><button id="play">开始游戏</button><button class="alt" id="shop">皮肤商店</button></div>
   <div class="row"><button class="alt" id="leaderboard">🏆 排行榜</button></div>
   <div id="cloudStatus">云端排行榜连接中…</div>
-  <p class="small">支持手机拖动、电脑鼠标、方向键 / WASD</p>
+  <p class="small">支持手机拖动、电脑鼠标、方向键 / WASD</p><p class="small"><a href="privacy.html" target="_blank" rel="noopener" style="color:#fff">隐私与广告说明</a></p>
  </div>
 </div>
 
-<div id="shopScreen" class="screen hidden"><div class="card"><h2>🛍️ 皮肤商店</h2><p>选择你喜欢的球。金币保存在本机。</p><div id="skins" class="grid"></div><div class="row"><button class="alt" id="back">返回</button></div></div></div>
+<div id="shopScreen" class="screen hidden"><div class="card shopCard"><h2>🛍️ 皮肤商店</h2><div class="shopBalance">余额：<b>🪙 <span id="shopCoins">0</span></b></div><p>购买并装备皮肤。购买记录保存在本机。</p><div id="skins" class="grid"></div><div class="row"><button class="alt" id="back">返回</button></div><p class="small">金币来自游戏过程：每通过 3 个障碍获得 1 枚金币。</p></div></div>
 
 <div id="boardScreen" class="screen hidden"><div class="card"><h2>🏆 排行榜</h2><div id="board">加载中…</div><div class="row"><button class="alt" id="boardBack">返回</button></div></div></div>
 
-<div id="over" class="screen hidden"><div class="card"><h2>游戏结束</h2><p>本局 <b id="finalScore">0</b>　最高 <b id="finalBest">0</b><br>获得金币 <b id="earned">0</b></p><div class="row"><button id="again">再来一次</button><button class="alt" id="homeBtn">主菜单</button></div><p id="submitStatus" class="small">正在提交排行榜…</p></div></div>
+<div id="over" class="screen hidden"><div class="card"><h2>游戏结束</h2><p>本局 <b id="finalScore">0</b>　最高 <b id="finalBest">0</b><br>获得金币 <b id="earned">0</b></p><div class="row"><button id="revive" class="hidden">📺 看广告复活</button><button id="again">再来一次</button><button class="alt" id="homeBtn">主菜单</button></div><p id="reviveStatus" class="small"></p><p id="submitStatus" class="small">正在提交排行榜…</p></div></div>
 </div>
 
 <script>
@@ -60,20 +63,31 @@ const SUPABASE_URL='https://bzmpmgrzrhkraubosvwp.supabase.co';
 const SUPABASE_KEY='sb_publishable_bskneOG7n66vdR2xgFn-cw_cljk8rjq';
 
 const c=document.getElementById('c'),ctx=c.getContext('2d'),app=document.getElementById('app');
-let W=0,H=0,dpr=1,last=0,running=false,score=0,level=1,spawnTimer=0,speed=220,coins=+localStorage.dodgeCoinsV2||0,best=+localStorage.dodgeBestV2||0,earned=0;
+let W=0,H=0,dpr=1,last=0,running=false,score=0,level=1,spawnTimer=0,speed=220,coins=+localStorage.dodgeCoinsV2||0,best=+localStorage.dodgeBestV2||0,passed=0,earnedCoins=0;
+let reviveUsed=false,invincibleUntil=0,gameOverPending=false;
+const REWARDED_AD_UNIT=window.DODGE_AD_CONFIG?.rewardedAdUnit||'';
+let rewardedSlot=null,rewardedReady=false,waitingForReward=false,rewardGranted=false,adsConfigured=!!REWARDED_AD_UNIT;
+window.googletag=window.googletag||{cmd:[]};
 const owned=JSON.parse(localStorage.dodgeSkins||'["white"]');let selected=localStorage.dodgeSkin||'white';
-const skins=[{id:'white',name:'经典',cost:0,color:'#fff'},{id:'cyan',name:'霓虹',cost:40,color:'#64f7ff'},{id:'gold',name:'黄金',cost:120,color:'#ffd45c'},{id:'violet',name:'紫电',cost:220,color:'#c58cff'},{id:'lime',name:'能量',cost:350,color:'#b9ff63'},{id:'rose',name:'玫瑰',cost:500,color:'#ff7fa8'}];
+const skins=[{id:'white',name:'经典',cost:0,color:'#fff',desc:'默认'},{id:'cyan',name:'霓虹',cost:40,color:'#64f7ff',desc:'清爽蓝光'},{id:'gold',name:'黄金',cost:120,color:'#ffd45c',desc:'金色传说'},{id:'violet',name:'紫电',cost:220,color:'#c58cff',desc:'紫色电弧'},{id:'lime',name:'能量',cost:350,color:'#b9ff63',desc:'绿色能量'},{id:'rose',name:'玫瑰',cost:500,color:'#ff7fa8',desc:'粉色霓虹'},{id:'orange',name:'熔岩',cost:700,color:'#ff9a4d',desc:'炽热橙光'},{id:'ice',name:'冰晶',cost:900,color:'#9eeaff',desc:'冰蓝极光'},{id:'plasma',name:'等离子',cost:1200,color:'#ff7cff',desc:'高能紫粉'},{id:'diamond',name:'钻石',cost:1800,color:'#dffcff',desc:'终极稀有'}];
 let p={x:0,y:0,r:13},obs=[],particles=[],keys={};
 
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=app.clientWidth;H=app.clientHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(!running){p.x=W/2;p.y=H*.78}}addEventListener('resize',resize);resize();
 function save(){localStorage.dodgeCoinsV2=coins;localStorage.dodgeBestV2=best;localStorage.dodgeSkins=JSON.stringify(owned);localStorage.dodgeSkin=selected}
-function ui(){document.getElementById('score').textContent=Math.floor(score);document.getElementById('coins').textContent=coins;document.getElementById('best').textContent=best;level=Math.floor(score/120)+1;document.getElementById('level').textContent='Lv.'+level;document.getElementById('xp').style.width=((score%120)/120*100)+'%'}
+function ui(){document.getElementById('score').textContent=Math.floor(score);document.getElementById('coins').textContent=coins;document.getElementById('best').textContent=best;const sc=document.getElementById('shopCoins');if(sc)sc.textContent=coins;level=Math.floor(score/120)+1;document.getElementById('level').textContent='Lv.'+level;document.getElementById('xp').style.width=((score%120)/120*100)+'%'}
 function show(id){['home','shopScreen','boardScreen','over'].forEach(x=>document.getElementById(x).classList.toggle('hidden',x!==id))}
 function toast(t){const e=document.getElementById('toast');e.textContent=t;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,900)}
-function renderShop(){const box=document.getElementById('skins');box.innerHTML='';skins.forEach(s=>{const d=document.createElement('div');d.className='skin'+(owned.includes(s.id)?'':' lock');d.innerHTML='<div class="dot" style="background:'+s.color+'"></div><b>'+s.name+'</b><div>'+(owned.includes(s.id)?'已拥有':s.cost+' 🪙')+'</div>';d.onclick=()=>{if(owned.includes(s.id)){selected=s.id;save();toast('已装备：'+s.name);renderShop()}else if(coins>=s.cost){coins-=s.cost;owned.push(s.id);selected=s.id;save();toast('解锁成功！');renderShop()}else toast('金币不够')};box.appendChild(d)})}
-function reset(){score=0;level=1;speed=220;spawnTimer=.3;earned=0;obs=[];particles=[];p.x=W/2;p.y=H*.78;ui()}
+function renderShop(){const box=document.getElementById('skins');box.innerHTML='';document.getElementById('shopCoins').textContent=coins;skins.forEach(s=>{const has=owned.includes(s.id),eq=selected===s.id;const d=document.createElement('div');d.className='skin'+(has?' owned':' lock')+(eq?' equipped':'');d.innerHTML='<div class="dot" style="background:'+s.color+';box-shadow:0 0 18px '+s.color+'"></div><b>'+s.name+'</b><div class="skinDesc">'+s.desc+'</div><div class="skinAction">'+(eq?'✓ 已装备':has?'点击装备':s.cost+' 🪙 购买')+'</div>';d.onclick=()=>{if(has){selected=s.id;save();toast('已装备：'+s.name);renderShop()}else if(coins>=s.cost){coins-=s.cost;owned.push(s.id);selected=s.id;save();toast('购买成功：'+s.name);renderShop();ui()}else toast('金币不够，还差 '+(s.cost-coins)+' 枚')};box.appendChild(d)})}
+function reset(){score=0;level=1;speed=220;spawnTimer=.3;passed=0;earnedCoins=0;obs=[];particles=[];p.x=W/2;p.y=H*.78;reviveUsed=false;invincibleUntil=0;gameOverPending=false;ui()}
+function finalSubmit(){if(!gameOverPending)return;gameOverPending=false;submitScore()}
+function doRevive(){if(!waitingForReward||rewardGranted||reviveUsed)return;rewardGranted=true;waitingForReward=false;reviveUsed=true;invincibleUntil=performance.now()+3000;obs=[];particles=[];p.x=W/2;p.y=H*.78;document.getElementById('revive').classList.add('hidden');document.getElementById('reviveStatus').textContent='✅ 复活成功！3 秒无敌';show('none');running=true;last=performance.now();requestAnimationFrame(loop);prepareRewardedAd()}
+function end(){running=false;best=Math.max(best,Math.floor(score));save();document.getElementById('finalScore').textContent=Math.floor(score);document.getElementById('finalBest').textContent=best;document.getElementById('earned').textContent=earnedCoins;gameOverPending=true;show('over');setupReviveButton()}
+function setupReviveButton(){const b=document.getElementById('revive'),st=document.getElementById('reviveStatus');b.classList.toggle('hidden',reviveUsed);b.disabled=false;if(!reviveUsed){if(!adsConfigured){st.textContent='📺 激励广告尚未配置广告位，配置后即可复活';}else if(rewardedReady){st.textContent='📺 广告已准备好，可观看后复活';}else{st.textContent='📺 广告准备中…';prepareRewardedAd()}}}
+function watchRewardedAd(){if(reviveUsed)return;if(!adsConfigured){document.getElementById('reviveStatus').textContent='广告暂时不可用，请先配置激励广告位';return}if(!rewardedSlot||!rewardedReady){document.getElementById('reviveStatus').textContent='广告暂时不可用，请稍后再试';prepareRewardedAd();return}waitingForReward=true;rewardGranted=false;document.getElementById('revive').disabled=true;document.getElementById('reviveStatus').textContent='广告播放中…';try{const ev=window.__lastRewardedReadyEvent;const shown=ev?.makeRewardedVisible?.();if(shown===false){waitingForReward=false;document.getElementById('revive').disabled=false;document.getElementById('reviveStatus').textContent='广告暂时不可用，请稍后再试';}}catch(e){waitingForReward=false;document.getElementById('revive').disabled=false;document.getElementById('reviveStatus').textContent='广告暂时不可用，请稍后再试'}}
+function prepareRewardedAd(){if(!adsConfigured||rewardedSlot||waitingForReward)return;googletag.cmd.push(()=>{try{const slot=googletag.defineOutOfPageSlot(REWARDED_AD_UNIT,googletag.enums.OutOfPageFormat.REWARDED);if(!slot){document.getElementById('reviveStatus').textContent='当前设备暂不支持激励广告';return}rewardedSlot=slot;rewardedReady=false;slot.addService(googletag.pubads());googletag.pubads().addEventListener('rewardedSlotReady',e=>{if(e.slot!==slot)return;rewardedReady=true;window.__lastRewardedReadyEvent=e;if(!reviveUsed&&!running){const st=document.getElementById('reviveStatus');if(st)st.textContent='📺 广告已准备好，可观看后复活'}});googletag.pubads().addEventListener('rewardedSlotGranted',e=>{if(e.slot!==slot)return;doRevive()});googletag.pubads().addEventListener('rewardedSlotClosed',e=>{if(e.slot!==slot)return;if(!rewardGranted){waitingForReward=false;const b=document.getElementById('revive');if(b){b.disabled=false}const st=document.getElementById('reviveStatus');if(st)st.textContent='广告未完成，未获得复活奖励'}rewardedSlot=null;rewardedReady=false;window.__lastRewardedReadyEvent=null;prepareRewardedAd()});googletag.enableServices();googletag.display(slot)}catch(e){rewardedSlot=null;rewardedReady=false;document.getElementById('reviveStatus').textContent='广告暂时不可用，请稍后再试'}})}
+
 function play(){const name=document.getElementById('player').value.trim();if(!name){toast('请先输入昵称');document.getElementById('player').focus();return}reset();running=true;show('none');last=performance.now();requestAnimationFrame(loop)}
-function end(){running=false;best=Math.max(best,Math.floor(score));save();document.getElementById('finalScore').textContent=Math.floor(score);document.getElementById('finalBest').textContent=best;document.getElementById('earned').textContent=earned;show('over');submitScore()}
+
 function move(x,y){p.x=Math.max(p.r,Math.min(W-p.r,x));p.y=Math.max(82,Math.min(H-p.r,y))}
 c.addEventListener('pointermove',e=>{if(running){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});c.addEventListener('pointerdown',e=>{if(running){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '&&!running)play()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
@@ -81,7 +95,7 @@ function spawnObstacle(){const size=18+Math.random()*34;obs.push({x:size/2+Math.
 function particle(x,y,n=10){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*180,vy:(Math.random()-.5)*180,life:.5+Math.random()*.5})}
 function collide(o){const dx=Math.abs(p.x-o.x),dy=Math.abs(p.y-(o.y+o.size/2));return dx<p.r+o.size/2&&dy<p.r+o.size/2}
 function draw(t){ctx.clearRect(0,0,W,H);for(let i=0;i<55;i++){let x=(i*83)%W,y=((i*137+t*.015)%H);ctx.globalAlpha=.12;ctx.fillStyle='#fff';ctx.fillRect(x,y,1.5,1.5)}ctx.globalAlpha=1;for(const o of obs){ctx.save();ctx.translate(o.x,o.y+o.size/2);ctx.rotate(o.rot);ctx.fillStyle='#ff5367';ctx.shadowBlur=18;ctx.shadowColor='#ff536788';ctx.fillRect(-o.size/2,-o.size/2,o.size,o.size);ctx.restore()}const s=skins.find(x=>x.id===selected)||skins[0];ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle=s.color;ctx.shadowBlur=24;ctx.shadowColor=s.color;ctx.fill();ctx.shadowBlur=0;for(const q of particles){ctx.globalAlpha=Math.max(0,q.life);ctx.fillStyle='#fff';ctx.fillRect(q.x,q.y,3,3)}ctx.globalAlpha=1}
-function loop(t){if(!running)return;const dt=Math.min((t-last)/1000,.035);last=t;if(keys.arrowleft||keys.a)p.x-=370*dt;if(keys.arrowright||keys.d)p.x+=370*dt;if(keys.arrowup||keys.w)p.y-=370*dt;if(keys.arrowdown||keys.s)p.y+=370*dt;move(p.x,p.y);score+=dt*10;speed+=dt*3.2;ui();spawnTimer-=dt;if(spawnTimer<=0){spawnObstacle();spawnTimer=Math.max(.16,.68-score/850)}for(let i=obs.length-1;i>=0;i--){let o=obs[i];o.y+=o.vy*dt;o.rot+=o.vr*dt;if(collide(o)){particle(p.x,p.y,24);end();return}if(o.y>H+60){obs.splice(i,1);earned++;if(earned%3===0)coins++}}for(let i=particles.length-1;i>=0;i--){let q=particles[i];q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.96;q.vy*=.96;q.life-=dt;if(q.life<=0)particles.splice(i,1)}draw(t);requestAnimationFrame(loop)}
+function loop(t){if(!running)return;const dt=Math.min((t-last)/1000,.035);last=t;if(keys.arrowleft||keys.a)p.x-=370*dt;if(keys.arrowright||keys.d)p.x+=370*dt;if(keys.arrowup||keys.w)p.y-=370*dt;if(keys.arrowdown||keys.s)p.y+=370*dt;move(p.x,p.y);score+=dt*10;speed+=dt*3.2;ui();spawnTimer-=dt;if(spawnTimer<=0){spawnObstacle();spawnTimer=Math.max(.16,.68-score/850)}for(let i=obs.length-1;i>=0;i--){let o=obs[i];o.y+=o.vy*dt;o.rot+=o.vr*dt;if(performance.now()>invincibleUntil&&collide(o)){particle(p.x,p.y,24);end();return}if(o.y>H+60){obs.splice(i,1);passed++;if(passed%3===0){coins++;earnedCoins++;save();ui();toast('+1 🪙')}}}for(let i=particles.length-1;i>=0;i--){let q=particles[i];q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.96;q.vy*=.96;q.life-=dt;if(q.life<=0)particles.splice(i,1)}draw(t);requestAnimationFrame(loop)}
 
 async function checkCloud(){
  try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=id&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});document.getElementById('cloudStatus').textContent=r.ok?'☁️ 云端排行榜已连接':'⚠️ 云端排行榜连接失败';}
@@ -97,8 +111,8 @@ async function submitScore(){
 async function loadBoard(){show('boardScreen');const box=document.getElementById('board');box.textContent='加载中…';try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&order=score.desc&limit=20',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(!r.ok)throw 0;const rows=await r.json();box.innerHTML=rows.length?rows.map((x,i)=>'<div class="rank"><b>#'+(i+1)+'</b><span>'+esc(x.player)+' ('+esc(x.country||'')+')</span><strong>'+x.score+'</strong></div>').join(''):'暂无成绩';}catch(e){box.textContent='排行榜暂时无法加载'}}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
-document.getElementById('play').onclick=play;document.getElementById('again').onclick=play;document.getElementById('homeBtn').onclick=()=>show('home');document.getElementById('shop').onclick=()=>{renderShop();show('shopScreen')};document.getElementById('back').onclick=()=>show('home');document.getElementById('leaderboard').onclick=loadBoard;document.getElementById('boardBack').onclick=()=>show('home');
-ui();draw(0);checkCloud();
+document.getElementById('play').onclick=play;document.getElementById('again').onclick=()=>{finalSubmit();play()};document.getElementById('revive').onclick=watchRewardedAd;document.getElementById('homeBtn').onclick=()=>{finalSubmit();show('home')};document.getElementById('shop').onclick=()=>{renderShop();show('shopScreen')};document.getElementById('back').onclick=()=>show('home');document.getElementById('leaderboard').onclick=loadBoard;document.getElementById('boardBack').onclick=()=>show('home');
+ui();draw(0);checkCloud();if(adsConfigured)prepareRewardedAd();
 </script>
 </body>
 </html>

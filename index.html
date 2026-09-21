@@ -25,7 +25,7 @@ adConfig({preloadAdBreaks:'auto',sound:'on',onReady:function(){
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#050812;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{border:0;border-radius:15px;padding:12px 16px;font-weight:800;background:#fff;color:#08101f;cursor:pointer;box-shadow:0 8px 24px #0003}button.alt{background:#ffffff12;color:#fff;border:1px solid #fff2;box-shadow:none}button.warn{background:#ff6477;color:#fff}button:active{transform:scale(.97)}
 #app{position:relative;width:min(100vw,520px);height:100vh;margin:auto;overflow:hidden;background:radial-gradient(circle at 50% 15%,#243d76,#080b15 66%);transition:filter .3s}
 #app.theme-purple{background:radial-gradient(circle at 50% 15%,#542b79,#080711 66%)}#app.theme-cyan{background:radial-gradient(circle at 50% 15%,#125d71,#050c12 66%)}#app.theme-gold{background:radial-gradient(circle at 50% 15%,#654d1b,#0d0a05 66%)}
-canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;z-index:2}.pill{padding:7px 10px;border:1px solid #fff2;border-radius:13px;background:#ffffff12;backdrop-filter:blur(10px);font-size:11px}.pill b{font-size:15px}.bar{position:absolute;top:59px;left:12px;right:12px;height:5px;background:#fff2;border-radius:9px;overflow:hidden;z-index:2}.bar i{display:block;height:100%;width:0;background:#fff;border-radius:9px}.gameBtns{position:absolute;right:12px;top:90px;z-index:3;display:none}.gameBtns button{padding:8px 11px;background:#111a2dcc;color:#fff;border:1px solid #fff2}.screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#050812b8;backdrop-filter:blur(7px);z-index:5}.card{width:min(94%,440px);max-height:92vh;overflow:auto;background:#10182b;border:1px solid #fff2;border-radius:24px;padding:22px;box-shadow:0 25px 80px #0009;text-align:center}h1{margin:0 0 4px;font-size:42px}h2{margin:0 0 8px}h3{margin:10px 0 5px}.sub{opacity:.68;font-size:13px;line-height:1.45}.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}input,select{width:100%;padding:12px 13px;margin-top:8px;border-radius:13px;border:1px solid #fff2;background:#ffffff0d;color:#fff;outline:none}select option{color:#111}.hidden{display:none!important}.small{font-size:11px;opacity:.55}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.tabs button{padding:9px 4px;font-size:12px}.tabs button.active{background:#fff;color:#08101f}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;text-align:left}.item{padding:11px;border-radius:14px;background:#ffffff0c;border:1px solid #fff1;min-height:92px}.item.lock{opacity:.55}.item .icon{font-size:25px}.item .name{font-weight:900}.item .meta{font-size:11px;opacity:.62;margin-top:3px}.item .tag{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:8px;background:#fff1;font-size:10px}.rarity{font-size:10px;opacity:.7}.rank{display:flex;justify-content:space-between;gap:6px;padding:9px 3px;border-bottom:1px solid #fff1;text-align:left}.rank b{min-width:30px}.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat{padding:12px;background:#fff0d;border:1px solid #fff1;border-radius:14px}.stat b{display:block;font-size:20px}.mission{padding:10px 0;border-bottom:1px solid #fff1;text-align:left}.mission .line{height:6px;background:#fff2;border-radius:8px;overflow:hidden;margin-top:6px}.mission i{display:block;height:100%;background:#fff}.reward{float:right}.setting{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #fff1}.switch{width:46px;height:27px;border-radius:20px;background:#fff2;padding:3px}.switch i{display:block;width:21px;height:21px;border-radius:50%;background:#fff;transition:.2s}.switch.on{background:#64f7ff}.switch.on i{transform:translateX(19px);background:#07111a}.powerbar{position:absolute;left:12px;right:12px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;gap:7px;z-index:3;pointer-events:none}.power{flex:1;min-width:0;padding:7px 6px;border-radius:12px;background:#111a2dcc;border:1px solid #fff2;text-align:center;font-size:10px}.power b{font-size:13px}.power .mini{height:4px;background:#fff2;border-radius:4px;margin-top:4px;overflow:hidden}.power i{display:block;height:100%;width:100%;background:#fff}.badge{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:10px;background:#fff1;font-size:11px;margin:2px}.toast{position:absolute;left:50%;top:78px;transform:translateX(-50%);padding:9px 13px;background:#111a2de8;border:1px solid #fff2;border-radius:12px;opacity:0;transition:.2s;z-index:9;pointer-events:none;white-space:nowrap}.toast.show{opacity:1}.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:8}.pulse{animation:pulse .45s}@keyframes pulse{50%{filter:brightness(1.8)}}
+canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:absolute;top:max(58px,calc(env(safe-area-inset-top) + 12px));left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;z-index:2}.pill{padding:7px 10px;border:1px solid #fff2;border-radius:13px;background:#ffffff12;backdrop-filter:blur(10px);font-size:11px}.pill b{font-size:15px}.bar{position:absolute;top:max(105px,calc(env(safe-area-inset-top) + 59px));left:12px;right:12px;height:5px;background:#fff2;border-radius:9px;overflow:hidden;z-index:2}.bar i{display:block;height:100%;width:0;background:#fff;border-radius:9px}.gameBtns{position:absolute;right:12px;top:max(136px,calc(env(safe-area-inset-top) + 90px));z-index:3;display:none}.gameBtns button{padding:8px 11px;background:#111a2dcc;color:#fff;border:1px solid #fff2}.screen{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#050812b8;backdrop-filter:blur(7px);z-index:5}.card{width:min(94%,440px);max-height:92vh;overflow:auto;background:#10182b;border:1px solid #fff2;border-radius:24px;padding:22px;box-shadow:0 25px 80px #0009;text-align:center}h1{margin:0 0 4px;font-size:42px}h2{margin:0 0 8px}h3{margin:10px 0 5px}.sub{opacity:.68;font-size:13px;line-height:1.45}.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}input,select{width:100%;padding:12px 13px;margin-top:8px;border-radius:13px;border:1px solid #fff2;background:#ffffff0d;color:#fff;outline:none}select option{color:#111}.hidden{display:none!important}.small{font-size:11px;opacity:.55}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.tabs button{padding:9px 4px;font-size:12px}.tabs button.active{background:#fff;color:#08101f}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;text-align:left}.item{padding:11px;border-radius:14px;background:#ffffff0c;border:1px solid #fff1;min-height:92px}.item.lock{opacity:.55}.item .icon{font-size:25px}.item .name{font-weight:900}.item .meta{font-size:11px;opacity:.62;margin-top:3px}.item .tag{display:inline-block;margin-top:5px;padding:3px 6px;border-radius:8px;background:#fff1;font-size:10px}.rarity{font-size:10px;opacity:.7}.rank{display:flex;justify-content:space-between;gap:6px;padding:9px 3px;border-bottom:1px solid #fff1;text-align:left}.rank b{min-width:30px}.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat{padding:12px;background:#fff0d;border:1px solid #fff1;border-radius:14px}.stat b{display:block;font-size:20px}.mission{padding:10px 0;border-bottom:1px solid #fff1;text-align:left}.mission .line{height:6px;background:#fff2;border-radius:8px;overflow:hidden;margin-top:6px}.mission i{display:block;height:100%;background:#fff}.reward{float:right}.setting{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #fff1}.switch{width:46px;height:27px;border-radius:20px;background:#fff2;padding:3px}.switch i{display:block;width:21px;height:21px;border-radius:50%;background:#fff;transition:.2s}.switch.on{background:#64f7ff}.switch.on i{transform:translateX(19px);background:#07111a}.powerbar{position:absolute;left:12px;right:12px;bottom:max(14px,env(safe-area-inset-bottom));display:flex;gap:7px;z-index:3;pointer-events:none}.power{flex:1;min-width:0;padding:7px 6px;border-radius:12px;background:#111a2dcc;border:1px solid #fff2;text-align:center;font-size:10px}.power b{font-size:13px}.power .mini{height:4px;background:#fff2;border-radius:4px;margin-top:4px;overflow:hidden}.power i{display:block;height:100%;width:100%;background:#fff}.badge{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:10px;background:#fff1;font-size:11px;margin:2px}.toast{position:absolute;left:50%;top:78px;transform:translateX(-50%);padding:9px 13px;background:#111a2de8;border:1px solid #fff2;border-radius:12px;opacity:0;transition:.2s;z-index:9;pointer-events:none;white-space:nowrap}.toast.show{opacity:1}.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:8}.pulse{animation:pulse .45s}@keyframes pulse{50%{filter:brightness(1.8)}}
 </style>
 </head>
 <body><div id="app">
@@ -69,8 +69,8 @@ async function trackEvent(name,data={}){
 }
 const $=id=>document.getElementById(id),c=$('c'),ctx=c.getContext('2d'),app=$('app');
 addEventListener('dodgeAdsReady',()=>{window.DODGE_ADS_READY=true;});
-const DEFAULT={coins:0,best:0,owned:['white'],selected:'white',xp:0,level:1,runs:0,totalScore:0,totalCoins:0,collisions:0,nearMiss:0,revives:0,items:{shield:1,magnet:1,double:0,slow:1},badges:[],music:true,sfx:true,vibration:true,fx:true,theme:'blue',lastDaily:'',missions:{date:'',play:0,score:0,coins:0,near:0},streak:0};
-let saveData=JSON.parse(localStorage.dodgeProfileV3||'null')||structuredClone(DEFAULT);for(const k in DEFAULT)if(saveData[k]===undefined)saveData[k]=DEFAULT[k];
+const DEFAULT={coins:0,best:0,pendingScores:[],owned:['white'],selected:'white',xp:0,level:1,runs:0,totalScore:0,totalCoins:0,collisions:0,nearMiss:0,revives:0,items:{shield:1,magnet:1,double:0,slow:1},badges:[],music:true,sfx:true,vibration:true,fx:true,theme:'blue',lastDaily:'',missions:{date:'',play:0,score:0,coins:0,near:0},streak:0};
+let saveData=JSON.parse(localStorage.dodgeProfileV3||'null')||structuredClone(DEFAULT);for(const k in DEFAULT)if(saveData[k]===undefined)saveData[k]=DEFAULT[k];if(!Array.isArray(saveData.pendingScores))saveData.pendingScores=[];
 let W=0,H=0,dpr=1,running=false,paused=false,score=0,earned=0,near=0,combo=0,speed=220,spawnTimer=0,last=0,revived=false,armor=0,runStartedAt=0,runId='',scoreSessionToken='',p={x:0,y:0,r:13},obs=[],coinsOnField=[],particles=[],powerups=[],keys={};
 const skins=[
 {id:'white',name:'经典',cost:0,color:'#fff',armor:0,rarity:'普通',desc:'标准性能'},
@@ -134,7 +134,7 @@ function newRunId(){try{if(crypto&&crypto.randomUUID)return crypto.randomUUID()}
 let challengeScore=0;
 function readChallenge(){try{const raw=new URLSearchParams(location.search).get('challenge');const n=Number(raw);if(Number.isFinite(n)&&n>=1&&n<=1000000){challengeScore=Math.floor(n);$('challengeScore').textContent=challengeScore;$('challengeBanner').classList.remove('hidden')}}catch(e){}}
 async function play(){try{let n=$('player').value.trim();if(!n){n='玩家';$('player').value=n;try{localStorage.dodgePlayerName=n}catch(e){}};missionReset();reset();runId=newRunId();scoreSessionToken='';scoreSessionError='';runStartedAt=Date.now();running=true;paused=false;revived=false;audioInit();$('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');last=performance.now();ui();requestScoreSession(runId);trackEvent('game_start',{runId});requestAnimationFrame(loop)}catch(e){running=false;paused=false;console.error('Game start failed',e);toast('游戏启动失败，请刷新页面');}}
-function finish(){running=false;paused=false;stopMusic();$('gameBtns').style.display='none';$('powerbar').classList.add('hidden');const s=Math.floor(score);saveData.runs++;saveData.totalScore+=s;saveData.totalCoins+=earned;saveData.best=Math.max(saveData.best,s);saveData.xp+=s;saveData.missions.play++;saveData.missions.score=Math.max(saveData.missions.score,s);saveData.missions.coins+=earned;saveData.missions.near+=near;saveData.nearMiss+=near;saveData.collisions++;if(near>=1)saveData.xp+=near*5;checkBadges();save();$('finalScore').textContent=s;$('finalBest').textContent=saveData.best;$('earned').textContent=earned;$('runSummary').textContent=`等级经验 +${s+near*5} · 擦身 ${near} · 连击 ${combo}`;$('revive').classList.toggle('hidden',revived);$('adStatus').textContent=revived?'本局已使用复活':'观看完整激励广告可复活一次';show('over');trackEvent('game_over',{runId,score:s,near,earned,durationSec:Math.max(5,Math.round((Date.now()-runStartedAt)/1000))});submitScore()}
+function finish(){running=false;paused=false;stopMusic();$('gameBtns').style.display='none';$('powerbar').classList.add('hidden');const s=Math.floor(score);saveData.runs++;saveData.totalScore+=s;saveData.totalCoins+=earned;saveData.best=Math.max(saveData.best,s);saveData.xp+=s;saveData.missions.play++;saveData.missions.score=Math.max(saveData.missions.score,s);saveData.missions.coins+=earned;saveData.missions.near+=near;saveData.nearMiss+=near;saveData.collisions++;if(near>=1)saveData.xp+=near*5;checkBadges();save();$('finalScore').textContent=s;$('finalBest').textContent=saveData.best;$('earned').textContent=earned;$('runSummary').textContent=`等级经验 +${s+near*5} · 擦身 ${near} · 连击 ${combo}`;$('revive').classList.toggle('hidden',revived);$('adStatus').textContent=revived?'本局已使用复活':'观看完整激励广告可复活一次';show('over');const completedRun={runId,player:$('player').value.trim()||'玩家',country:$('country').value,score:s,durationSec:Math.max(5,Math.round((Date.now()-runStartedAt)/1000))};queueScore(completedRun);$('submitStatus').textContent='💾 本局已保存，正在提交排行榜…';trackEvent('game_over',{runId,score:s,near,earned,durationSec:completedRun.durationSec});submitScore(completedRun)}
 let reviveInFlight=false;
 function applyReviveReward(){
   if(revived||reviveInFlight)return;
@@ -227,31 +227,70 @@ document.querySelectorAll('[data-btab]').forEach(b=>b.onclick=()=>{document.quer
 function bindSwitch(id,key){const e=$(id);function render(){e.classList.toggle('on',!!saveData[key])}e.onclick=()=>{saveData[key]=!saveData[key];save();render();if(key==='music'){if(saveData.music)audioInit();else stopMusic()} };render()}bindSwitch('musicSwitch','music');bindSwitch('sfxSwitch','sfx');bindSwitch('vibSwitch','vibration');bindSwitch('fxSwitch','fx');
 document.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>theme(b.dataset.theme));$('resetData').onclick=()=>{if(confirm('确定重置本机所有游戏数据吗？')){localStorage.removeItem('dodgeProfileV3');location.reload()}};
 async function checkCloud(){try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=id&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});$('cloudStatus').textContent=r.ok?'☁️ 云端排行榜已连接':'⚠️ 云端排行榜连接失败'}catch(e){$('cloudStatus').textContent='⚠️ 云端排行榜连接失败'}}
-async function submitScore(){
-  const st=$('submitStatus'),player=$('player').value.trim()||'玩家',country=$('country').value;
-  const durationSec=Math.max(5,Math.round((Date.now()-runStartedAt)/1000)),finalScore=Math.floor(score);
-  st.textContent='正在提交排行榜…';
+function queueScore(run){
+  if(!run||!run.runId)return;
+  if(!Array.isArray(saveData.pendingScores))saveData.pendingScores=[];
+  const exists=saveData.pendingScores.some(x=>x.runId===run.runId);
+  if(!exists)saveData.pendingScores.push(run);
+  if(saveData.pendingScores.length>20)saveData.pendingScores=saveData.pendingScores.slice(-20);
+  save();
+}
+async function submitOneScore(run){
+  if(!run)return false;
+  let token=run.token||'';
   try{
-    if(!scoreSessionToken) await requestScoreSession(runId);
-    if(!scoreSessionToken){st.textContent='⚠️ 排行榜服务暂时不可用（'+(scoreSessionError||'unknown_error')+'）';return}
+    if(!token){
+      const ok=await requestScoreSession(run.runId);
+      token=scoreSessionToken||'';
+      if(!ok||!token)return false;
+    }
     const r=await fetch(SUPABASE_URL+'/functions/v1/submit-score',{
       method:'POST',
       headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({token:scoreSessionToken,run_id:runId,player,score:finalScore,country,duration_sec:durationSec}),
+      body:JSON.stringify({token,run_id:run.runId,player:run.player||'玩家',score:run.score||0,country:run.country||'US',duration_sec:run.durationSec||5}),
       cache:'no-store'
     });
-    if(!r.ok){
-      let msg='提交失败';
-      try{const x=await r.json();msg=x.error||msg}catch(e){}
-      st.textContent='⚠️ '+msg+'（游戏本身不受影响）';
-      return;
+    if(!r.ok)return false;
+    return true;
+  }catch(e){return false}
+}
+async function flushPendingScores(){
+  if(!Array.isArray(saveData.pendingScores)||!saveData.pendingScores.length)return;
+  const pending=[...saveData.pendingScores];
+  for(const run of pending){
+    const ok=await submitOneScore(run);
+    if(ok){
+      saveData.pendingScores=saveData.pendingScores.filter(x=>x.runId!==run.runId);
+      save();
+    }else{
+      break;
     }
+  }
+}
+async function submitScore(run){
+  const st=$('submitStatus');
+  const data=run||{
+    runId,
+    player:$('player').value.trim()||'玩家',
+    country:$('country').value,
+    score:Math.floor(score),
+    durationSec:Math.max(5,Math.round((Date.now()-runStartedAt)/1000))
+  };
+  queueScore(data);
+  st.textContent='正在保存并提交排行榜…';
+  const ok=await submitOneScore(data);
+  if(ok){
+    saveData.pendingScores=saveData.pendingScores.filter(x=>x.runId!==data.runId);
+    save();
     st.textContent='☁️ 分数已通过安全服务提交';
-  }catch(e){st.textContent='⚠️ 网络连接失败（游戏本身不受影响）'}
+    if(saveData.pendingScores.length) setTimeout(flushPendingScores,300);
+  }else{
+    st.textContent='💾 分数已保存到本机，联网后自动上传';
+  }
 }
 async function loadBoard(){show('boardScreen');const box=$('board');box.textContent='加载中…';try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&order=score.desc&limit=20',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(!r.ok)throw 0;const rows=await r.json();box.innerHTML=rows.length?rows.map((x,i)=>`<div class="rank"><b>#${i+1}</b><span>${esc(x.player)} (${esc(x.country||'')})</span><strong>${x.score}</strong></div>`).join(''):'暂无成绩'}catch(e){box.textContent='排行榜暂时无法加载'}}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 window.play=play; window.show=show; window.togglePause=togglePause;
 // restore theme + profile name + daily reward on launch
-$('player').value=localStorage.dodgePlayerName||'';$('player').addEventListener('input',()=>localStorage.dodgePlayerName=$('player').value);theme(saveData.theme);ui();draw(0);readChallenge();checkCloud();setTimeout(maybeDaily,500);
+$('player').value=localStorage.dodgePlayerName||'';$('player').addEventListener('input',()=>localStorage.dodgePlayerName=$('player').value);addEventListener('online',()=>setTimeout(flushPendingScores,500));theme(saveData.theme);ui();draw(0);readChallenge();checkCloud();setTimeout(()=>{flushPendingScores();maybeDaily()},500);
 </script></body></html>

@@ -10,6 +10,17 @@
 <meta name="theme-color" content="#070b16">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Dodge Rush</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1697827837177436" crossorigin="anonymous"></script>
+<script>
+window.adsbygoogle=window.adsbygoogle||[];
+var adBreak=window.adBreak=window.adBreak||function(o){window.adsbygoogle.push(o)};
+var adConfig=window.adConfig=window.adConfig||function(o){window.adsbygoogle.push(o)};
+adConfig({preloadAdBreaks:'auto',sound:'on',onReady:function(){
+  window.DODGE_ADS_READY=true;
+  window.dispatchEvent(new Event('dodgeAdsReady'));
+}});
+</script>
+
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#050812;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{border:0;border-radius:15px;padding:12px 16px;font-weight:800;background:#fff;color:#08101f;cursor:pointer;box-shadow:0 8px 24px #0003}button.alt{background:#ffffff12;color:#fff;border:1px solid #fff2;box-shadow:none}button.warn{background:#ff6477;color:#fff}button:active{transform:scale(.97)}
 #app{position:relative;width:min(100vw,520px);height:100vh;margin:auto;overflow:hidden;background:radial-gradient(circle at 50% 15%,#243d76,#080b15 66%);transition:filter .3s}
@@ -57,6 +68,7 @@ async function trackEvent(name,data={}){
   }catch(e){}
 }
 const $=id=>document.getElementById(id),c=$('c'),ctx=c.getContext('2d'),app=$('app');
+addEventListener('dodgeAdsReady',()=>{window.DODGE_ADS_READY=true;});
 const DEFAULT={coins:0,best:0,owned:['white'],selected:'white',xp:0,level:1,runs:0,totalScore:0,totalCoins:0,collisions:0,nearMiss:0,revives:0,items:{shield:1,magnet:1,double:0,slow:1},badges:[],music:true,sfx:true,vibration:true,fx:true,theme:'blue',lastDaily:'',missions:{date:'',play:0,score:0,coins:0,near:0},streak:0};
 let saveData=JSON.parse(localStorage.dodgeProfileV3||'null')||structuredClone(DEFAULT);for(const k in DEFAULT)if(saveData[k]===undefined)saveData[k]=DEFAULT[k];
 let W=0,H=0,dpr=1,running=false,paused=false,score=0,earned=0,near=0,combo=0,speed=220,spawnTimer=0,last=0,revived=false,armor=0,runStartedAt=0,runId='',scoreSessionToken='',p={x:0,y:0,r:13},obs=[],coinsOnField=[],particles=[],powerups=[],keys={};
@@ -121,7 +133,46 @@ async function requestScoreSession(id){
 function newRunId(){try{if(crypto&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}return 'run-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}
 async function play(){try{let n=$('player').value.trim();if(!n){n='玩家';$('player').value=n;try{localStorage.dodgePlayerName=n}catch(e){}};missionReset();reset();runId=newRunId();scoreSessionToken='';scoreSessionError='';runStartedAt=Date.now();running=true;paused=false;revived=false;audioInit();$('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');last=performance.now();ui();requestScoreSession(runId);trackEvent('game_start',{runId});requestAnimationFrame(loop)}catch(e){running=false;paused=false;console.error('Game start failed',e);toast('游戏启动失败，请刷新页面');}}
 function finish(){running=false;paused=false;stopMusic();$('gameBtns').style.display='none';$('powerbar').classList.add('hidden');const s=Math.floor(score);saveData.runs++;saveData.totalScore+=s;saveData.totalCoins+=earned;saveData.best=Math.max(saveData.best,s);saveData.xp+=s;saveData.missions.play++;saveData.missions.score=Math.max(saveData.missions.score,s);saveData.missions.coins+=earned;saveData.missions.near+=near;saveData.nearMiss+=near;saveData.collisions++;if(near>=1)saveData.xp+=near*5;checkBadges();save();$('finalScore').textContent=s;$('finalBest').textContent=saveData.best;$('earned').textContent=earned;$('runSummary').textContent=`等级经验 +${s+near*5} · 擦身 ${near} · 连击 ${combo}`;$('revive').classList.toggle('hidden',revived);$('adStatus').textContent=revived?'本局已使用复活':'观看完整激励广告可复活一次';show('over');trackEvent('game_over',{runId,score:s,near,earned,durationSec:Math.max(0,Math.round((Date.now()-runStartedAt)/1000))});submitScore()}
-function revive(){if(revived)return;const ready=window.DODGE_ADS_READY===true;if(!ready){$('adStatus').textContent='广告暂时不可用，请先配置激励广告位';toast('广告暂时不可用');return}/* real provider integration hook */$('adStatus').textContent='正在加载广告…';setTimeout(()=>{revived=true;running=true;paused=false;score+=20;armor=Math.max(1,armor);p.x=W/2;p.y=H*.78;obs=[];particles=[];$('flash').style.opacity=.7;setTimeout(()=>$('flash').style.opacity=0,100);toast('🛡️ 复活成功！3秒无敌');saveData.revives++;save();last=performance.now();$('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');requestAnimationFrame(loop)},600)}
+let reviveInFlight=false;
+function applyReviveReward(){
+  if(revived||reviveInFlight)return;
+  reviveInFlight=true;revived=true;running=true;paused=false;score+=20;armor=Math.max(1,armor);
+  p.x=W/2;p.y=H*.78;obs=[];particles=[];$('flash').style.opacity=.7;
+  setTimeout(()=>$('flash').style.opacity=0,100);
+  toast('🛡️ 复活成功！3秒无敌');saveData.revives++;save();last=performance.now();
+  $('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');
+  trackEvent('revive_completed',{runId,score:Math.floor(score)});
+  requestAnimationFrame(loop);
+  setTimeout(()=>{reviveInFlight=false},500);
+}
+function revive(){
+  if(revived||reviveInFlight)return;
+  if(typeof window.adBreak!=='function'||window.DODGE_ADS_READY!==true){
+    $('adStatus').textContent='激励广告暂时不可用';toast('广告暂时不可用');return;
+  }
+  reviveInFlight=true;$('adStatus').textContent='正在准备激励广告…';trackEvent('revive_request',{runId});
+  let handled=false;
+  try{
+    window.adBreak({
+      type:'reward',name:'revive-life',
+      beforeAd:()=>{stopMusic()},
+      afterAd:()=>{},
+      beforeReward:(showAdFn)=>{showAdFn()},
+      adDismissed:()=>{handled=true;reviveInFlight=false;$('adStatus').textContent='未完整观看广告，无法复活';trackEvent('revive_dismissed',{runId})},
+      adViewed:()=>{handled=true;$('adStatus').textContent='广告完成，正在复活…';applyReviveReward()},
+      adBreakDone:(info)=>{
+        if(!handled){
+          reviveInFlight=false;
+          const status=info&&info.breakStatus?info.breakStatus:'no_ad';
+          $('adStatus').textContent='当前没有可用广告，请稍后再试';
+          trackEvent('revive_no_ad',{runId,status});
+        }
+      }
+    });
+  }catch(e){
+    reviveInFlight=false;$('adStatus').textContent='广告暂时不可用';trackEvent('revive_error',{runId});
+  }
+}
 function move(x,y){p.x=Math.max(p.r,Math.min(W-p.r,x));p.y=Math.max(82,Math.min(H-p.r,y))}
 c.addEventListener('pointermove',e=>{if(running&&!paused){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});c.addEventListener('pointerdown',e=>{if(running&&!paused){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '&&!running)play();if(e.key==='Escape'&&running)togglePause()});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
@@ -144,7 +195,19 @@ for(let i=particles.length-1;i>=0;i--){const q=particles[i];q.x+=q.vx*dt;q.y+=q.
 function draw(t){ctx.clearRect(0,0,W,H);const s=skin();for(let i=0;i<65;i++){const x=(i*83)%W,y=((i*137+t*.02)%H);ctx.globalAlpha=.10+(i%4)*.025;ctx.fillStyle='#fff';ctx.fillRect(x,y,1.5,1.5)}ctx.globalAlpha=1;for(const q of coinsOnField){ctx.save();ctx.translate(q.x,q.y);ctx.rotate(t/600);ctx.fillStyle='#ffd45c';ctx.shadowBlur=16;ctx.shadowColor='#ffd45c';ctx.beginPath();ctx.arc(0,0,q.r,0,7);ctx.fill();ctx.fillStyle='#7b5410';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('¢',0,0);ctx.restore()}for(const q of powerups){const em={shield:'🛡️',magnet:'🧲',double:'×2',slow:'🐌'}[q.type];ctx.save();ctx.translate(q.x,q.y);ctx.fillStyle='#ffffff18';ctx.strokeStyle='#fff8';ctx.beginPath();ctx.arc(0,0,q.r+4,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(em,0,0);ctx.restore()}for(const o of obs){ctx.save();ctx.translate(o.x,o.y+o.size/2);ctx.rotate(o.rot);ctx.fillStyle='#ff5367';ctx.shadowBlur=18;ctx.shadowColor='#ff536788';ctx.fillRect(-o.size/2,-o.size/2,o.size,o.size);ctx.restore()}ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle=s.color;ctx.shadowBlur=24;ctx.shadowColor=s.color;ctx.fill();if(armor>0){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,p.r+5,0,7);ctx.stroke()}ctx.shadowBlur=0;for(const q of particles){ctx.globalAlpha=Math.max(0,q.life);ctx.fillStyle=q.color;ctx.fillRect(q.x,q.y,q.size,q.size)}ctx.globalAlpha=1}
 function togglePause(){if(!running)return;paused=!paused;if(paused){show('pauseScreen');stopMusic()}else{show('none');last=performance.now();audioInit();requestAnimationFrame(loop)}}
 $('pauseBtn').onclick=togglePause;$('resume').onclick=togglePause;$('quit').onclick=()=>{running=false;paused=false;stopMusic();show('home')};
-$('play').addEventListener('click',play);$('settings').addEventListener('click',()=>show('settingsScreen'));$('again').onclick=play;$('revive').onclick=revive;$('homeBtn').onclick=()=>show('home');$('shop').onclick=()=>{trackEvent('shop_open');renderShop();show('shopScreen')};$('backpack').onclick=()=>{renderBackpack();show('backpackScreen')};$('profile').onclick=()=>{renderProfile();show('profileScreen')};$('missions').onclick=()=>{renderMissions();show('missionScreen')};$('achievements').onclick=()=>{renderAchievements();show('achievementScreen')};$('leaderboard').onclick=()=>{trackEvent('leaderboard_open');loadBoard()};$('dailyBtn').onclick=()=>{const d=new Date().toISOString().slice(0,10);if(saveData.lastDaily===d){toast('今日奖励已领取');return} $('dailyReward').textContent='🪙 '+(50+Math.min(saveData.streak,7)*10);show('dailyScreen')};
+$('play').addEventListener('click',play);$('settings').addEventListener('click',()=>show('settingsScreen'));
+let gamesSinceAd=0;
+$('again').onclick=()=>{
+  gamesSinceAd++;
+  if(gamesSinceAd%3===0&&typeof window.adBreak==='function'&&window.DODGE_ADS_READY===true){
+    let resumed=false;
+    try{
+      window.adBreak({type:'next',name:'restart-game',beforeAd:()=>{stopMusic()},afterAd:()=>{resumed=true;play()},adBreakDone:()=>{if(!resumed)play()}});
+      return;
+    }catch(e){}
+  }
+  play();
+};$('revive').onclick=revive;$('homeBtn').onclick=()=>show('home');$('shop').onclick=()=>{trackEvent('shop_open');renderShop();show('shopScreen')};$('backpack').onclick=()=>{renderBackpack();show('backpackScreen')};$('profile').onclick=()=>{renderProfile();show('profileScreen')};$('missions').onclick=()=>{renderMissions();show('missionScreen')};$('achievements').onclick=()=>{renderAchievements();show('achievementScreen')};$('leaderboard').onclick=()=>{trackEvent('leaderboard_open');loadBoard()};$('dailyBtn').onclick=()=>{const d=new Date().toISOString().slice(0,10);if(saveData.lastDaily===d){toast('今日奖励已领取');return} $('dailyReward').textContent='🪙 '+(50+Math.min(saveData.streak,7)*10);show('dailyScreen')};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>show('home'));document.querySelectorAll('[data-btab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-btab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderBackpack(b.dataset.btab)});
 function bindSwitch(id,key){const e=$(id);function render(){e.classList.toggle('on',!!saveData[key])}e.onclick=()=>{saveData[key]=!saveData[key];save();render();if(key==='music'){if(saveData.music)audioInit();else stopMusic()} };render()}bindSwitch('musicSwitch','music');bindSwitch('sfxSwitch','sfx');bindSwitch('vibSwitch','vibration');bindSwitch('fxSwitch','fx');
 document.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>theme(b.dataset.theme));$('resetData').onclick=()=>{if(confirm('确定重置本机所有游戏数据吗？')){localStorage.removeItem('dodgeProfileV3');location.reload()}};

@@ -42,10 +42,24 @@ canvas{display:block;width:100%;height:100%;touch-action:none}.hud{position:abso
 <script>
 const SUPABASE_URL='https://bzmpmgrzrhkraubosvwp.supabase.co';
 const SUPABASE_KEY='sb_publishable_bskneOG7n66vdR2xgFn-cw_cljk8rjq';
+const REMOTE_ANALYTICS=true;
+const ANALYTICS_SESSION=(crypto&&crypto.randomUUID)?crypto.randomUUID():('s-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9));
+async function trackEvent(name,data={}){
+  if(!REMOTE_ANALYTICS)return;
+  try{
+    const eid=ANALYTICS_SESSION+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);
+    await fetch(SUPABASE_URL+'/functions/v1/track-event',{
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({events:[{eid,name,sid:ANALYTICS_SESSION,t:Date.now(),data,country:(($('country')||{}).value||'').toUpperCase()}]}),
+      keepalive:true
+    });
+  }catch(e){}
+}
 const $=id=>document.getElementById(id),c=$('c'),ctx=c.getContext('2d'),app=$('app');
 const DEFAULT={coins:0,best:0,owned:['white'],selected:'white',xp:0,level:1,runs:0,totalScore:0,totalCoins:0,collisions:0,nearMiss:0,revives:0,items:{shield:1,magnet:1,double:0,slow:1},badges:[],music:true,sfx:true,vibration:true,fx:true,theme:'blue',lastDaily:'',missions:{date:'',play:0,score:0,coins:0,near:0},streak:0};
 let saveData=JSON.parse(localStorage.dodgeProfileV3||'null')||structuredClone(DEFAULT);for(const k in DEFAULT)if(saveData[k]===undefined)saveData[k]=DEFAULT[k];
-let W=0,H=0,dpr=1,running=false,paused=false,score=0,earned=0,near=0,combo=0,speed=220,spawnTimer=0,last=0,revived=false,armor=0,p={x:0,y:0,r:13},obs=[],coinsOnField=[],particles=[],powerups=[],keys={};
+let W=0,H=0,dpr=1,running=false,paused=false,score=0,earned=0,near=0,combo=0,speed=220,spawnTimer=0,last=0,revived=false,armor=0,runStartedAt=0,runId='',scoreSessionToken='',p={x:0,y:0,r:13},obs=[],coinsOnField=[],particles=[],powerups=[],keys={};
 const skins=[
 {id:'white',name:'经典',cost:0,color:'#fff',armor:0,rarity:'普通',desc:'标准性能'},
 {id:'cyan',name:'霓虹',cost:40,color:'#64f7ff',armor:1,rarity:'稀有',desc:'抗撞 1 次'},
@@ -84,8 +98,21 @@ function checkBadges(){const add=id=>{if(!saveData.badges.includes(id)){saveData
 function maybeDaily(){const d=new Date().toISOString().slice(0,10);if(saveData.lastDaily!==d){$('dailyReward').textContent='🪙 '+(50+Math.min(saveData.streak,7)*10);show('dailyScreen')}}
 $('claimDaily').onclick=()=>{const d=new Date().toISOString().slice(0,10);if(saveData.lastDaily===d)return;saveData.streak++;saveData.lastDaily=d;const r=50+Math.min(saveData.streak-1,7)*10;saveData.coins+=r;save();toast('🎁 今日奖励 +'+r);show('home')};
 function reset(){score=0;earned=0;near=0;combo=0;speed=220;spawnTimer=.35;obs=[];coinsOnField=[];particles=[];powerups=[];p.x=W/2;p.y=H*.78;armor=skin().armor;ui();updatePowers()}
-function play(){try{let n=$('player').value.trim();if(!n){n='玩家';$('player').value=n;try{localStorage.dodgePlayerName=n}catch(e){}};missionReset();reset();running=true;paused=false;revived=false;audioInit();$('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');last=performance.now();ui();requestAnimationFrame(loop)}catch(e){running=false;paused=false;console.error('Game start failed',e);toast('游戏启动失败，请刷新页面');}}
-function finish(){running=false;paused=false;stopMusic();$('gameBtns').style.display='none';$('powerbar').classList.add('hidden');const s=Math.floor(score);saveData.runs++;saveData.totalScore+=s;saveData.totalCoins+=earned;saveData.best=Math.max(saveData.best,s);saveData.xp+=s;saveData.missions.play++;saveData.missions.score=Math.max(saveData.missions.score,s);saveData.missions.coins+=earned;saveData.missions.near+=near;saveData.nearMiss+=near;saveData.collisions++;if(near>=1)saveData.xp+=near*5;checkBadges();save();$('finalScore').textContent=s;$('finalBest').textContent=saveData.best;$('earned').textContent=earned;$('runSummary').textContent=`等级经验 +${s+near*5} · 擦身 ${near} · 连击 ${combo}`;$('revive').classList.toggle('hidden',revived);$('adStatus').textContent=revived?'本局已使用复活':'观看完整激励广告可复活一次';show('over');submitScore()}
+async function requestScoreSession(id){
+  try{
+    const r=await fetch(SUPABASE_URL+'/functions/v1/score-session',{
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({run_id:id})
+    });
+    const x=await r.json().catch(()=>null);
+    if(r.ok&&x&&x.token&&x.run_id===id){scoreSessionToken=x.token;return true}
+  }catch(e){}
+  return false;
+}
+function newRunId(){try{if(crypto&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}return 'run-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}
+function play(){try{let n=$('player').value.trim();if(!n){n='玩家';$('player').value=n;try{localStorage.dodgePlayerName=n}catch(e){}};missionReset();reset();runId=newRunId();scoreSessionToken='';runStartedAt=Date.now();requestScoreSession(runId);trackEvent('game_start',{runId});running=true;paused=false;revived=false;audioInit();$('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');last=performance.now();ui();requestAnimationFrame(loop)}catch(e){running=false;paused=false;console.error('Game start failed',e);toast('游戏启动失败，请刷新页面');}}
+function finish(){running=false;paused=false;stopMusic();$('gameBtns').style.display='none';$('powerbar').classList.add('hidden');const s=Math.floor(score);saveData.runs++;saveData.totalScore+=s;saveData.totalCoins+=earned;saveData.best=Math.max(saveData.best,s);saveData.xp+=s;saveData.missions.play++;saveData.missions.score=Math.max(saveData.missions.score,s);saveData.missions.coins+=earned;saveData.missions.near+=near;saveData.nearMiss+=near;saveData.collisions++;if(near>=1)saveData.xp+=near*5;checkBadges();save();$('finalScore').textContent=s;$('finalBest').textContent=saveData.best;$('earned').textContent=earned;$('runSummary').textContent=`等级经验 +${s+near*5} · 擦身 ${near} · 连击 ${combo}`;$('revive').classList.toggle('hidden',revived);$('adStatus').textContent=revived?'本局已使用复活':'观看完整激励广告可复活一次';show('over');trackEvent('game_over',{runId,score:s,near,earned,durationSec:Math.max(0,Math.round((Date.now()-runStartedAt)/1000))});submitScore()}
 function revive(){if(revived)return;const ready=window.DODGE_ADS_READY===true;if(!ready){$('adStatus').textContent='广告暂时不可用，请先配置激励广告位';toast('广告暂时不可用');return}/* real provider integration hook */$('adStatus').textContent='正在加载广告…';setTimeout(()=>{revived=true;running=true;paused=false;score+=20;armor=Math.max(1,armor);p.x=W/2;p.y=H*.78;obs=[];particles=[];$('flash').style.opacity=.7;setTimeout(()=>$('flash').style.opacity=0,100);toast('🛡️ 复活成功！3秒无敌');saveData.revives++;save();last=performance.now();$('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');requestAnimationFrame(loop)},600)}
 function move(x,y){p.x=Math.max(p.r,Math.min(W-p.r,x));p.y=Math.max(82,Math.min(H-p.r,y))}
 c.addEventListener('pointermove',e=>{if(running&&!paused){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});c.addEventListener('pointerdown',e=>{if(running&&!paused){const r=c.getBoundingClientRect();move(e.clientX-r.left,e.clientY-r.top)}});
@@ -109,12 +136,27 @@ for(let i=particles.length-1;i>=0;i--){const q=particles[i];q.x+=q.vx*dt;q.y+=q.
 function draw(t){ctx.clearRect(0,0,W,H);const s=skin();for(let i=0;i<65;i++){const x=(i*83)%W,y=((i*137+t*.02)%H);ctx.globalAlpha=.10+(i%4)*.025;ctx.fillStyle='#fff';ctx.fillRect(x,y,1.5,1.5)}ctx.globalAlpha=1;for(const q of coinsOnField){ctx.save();ctx.translate(q.x,q.y);ctx.rotate(t/600);ctx.fillStyle='#ffd45c';ctx.shadowBlur=16;ctx.shadowColor='#ffd45c';ctx.beginPath();ctx.arc(0,0,q.r,0,7);ctx.fill();ctx.fillStyle='#7b5410';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('¢',0,0);ctx.restore()}for(const q of powerups){const em={shield:'🛡️',magnet:'🧲',double:'×2',slow:'🐌'}[q.type];ctx.save();ctx.translate(q.x,q.y);ctx.fillStyle='#ffffff18';ctx.strokeStyle='#fff8';ctx.beginPath();ctx.arc(0,0,q.r+4,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(em,0,0);ctx.restore()}for(const o of obs){ctx.save();ctx.translate(o.x,o.y+o.size/2);ctx.rotate(o.rot);ctx.fillStyle='#ff5367';ctx.shadowBlur=18;ctx.shadowColor='#ff536788';ctx.fillRect(-o.size/2,-o.size/2,o.size,o.size);ctx.restore()}ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fillStyle=s.color;ctx.shadowBlur=24;ctx.shadowColor=s.color;ctx.fill();if(armor>0){ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,p.r+5,0,7);ctx.stroke()}ctx.shadowBlur=0;for(const q of particles){ctx.globalAlpha=Math.max(0,q.life);ctx.fillStyle=q.color;ctx.fillRect(q.x,q.y,q.size,q.size)}ctx.globalAlpha=1}
 function togglePause(){if(!running)return;paused=!paused;if(paused){show('pauseScreen');stopMusic()}else{show('none');last=performance.now();audioInit();requestAnimationFrame(loop)}}
 $('pauseBtn').onclick=togglePause;$('resume').onclick=togglePause;$('quit').onclick=()=>{running=false;paused=false;stopMusic();show('home')};
-$('play').addEventListener('click',play);$('settings').addEventListener('click',()=>show('settingsScreen'));$('again').onclick=play;$('revive').onclick=revive;$('homeBtn').onclick=()=>show('home');$('shop').onclick=()=>{renderShop();show('shopScreen')};$('backpack').onclick=()=>{renderBackpack();show('backpackScreen')};$('profile').onclick=()=>{renderProfile();show('profileScreen')};$('missions').onclick=()=>{renderMissions();show('missionScreen')};$('achievements').onclick=()=>{renderAchievements();show('achievementScreen')};$('leaderboard').onclick=loadBoard;$('dailyBtn').onclick=()=>{const d=new Date().toISOString().slice(0,10);if(saveData.lastDaily===d){toast('今日奖励已领取');return} $('dailyReward').textContent='🪙 '+(50+Math.min(saveData.streak,7)*10);show('dailyScreen')};
+$('play').addEventListener('click',play);$('settings').addEventListener('click',()=>show('settingsScreen'));$('again').onclick=play;$('revive').onclick=revive;$('homeBtn').onclick=()=>show('home');$('shop').onclick=()=>{trackEvent('shop_open');renderShop();show('shopScreen')};$('backpack').onclick=()=>{renderBackpack();show('backpackScreen')};$('profile').onclick=()=>{renderProfile();show('profileScreen')};$('missions').onclick=()=>{renderMissions();show('missionScreen')};$('achievements').onclick=()=>{renderAchievements();show('achievementScreen')};$('leaderboard').onclick=()=>{trackEvent('leaderboard_open');loadBoard()};$('dailyBtn').onclick=()=>{const d=new Date().toISOString().slice(0,10);if(saveData.lastDaily===d){toast('今日奖励已领取');return} $('dailyReward').textContent='🪙 '+(50+Math.min(saveData.streak,7)*10);show('dailyScreen')};
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>show('home'));document.querySelectorAll('[data-btab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-btab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderBackpack(b.dataset.btab)});
 function bindSwitch(id,key){const e=$(id);function render(){e.classList.toggle('on',!!saveData[key])}e.onclick=()=>{saveData[key]=!saveData[key];save();render();if(key==='music'){if(saveData.music)audioInit();else stopMusic()} };render()}bindSwitch('musicSwitch','music');bindSwitch('sfxSwitch','sfx');bindSwitch('vibSwitch','vibration');bindSwitch('fxSwitch','fx');
 document.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>theme(b.dataset.theme));$('resetData').onclick=()=>{if(confirm('确定重置本机所有游戏数据吗？')){localStorage.removeItem('dodgeProfileV3');location.reload()}};
 async function checkCloud(){try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=id&limit=1',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});$('cloudStatus').textContent=r.ok?'☁️ 云端排行榜已连接':'⚠️ 云端排行榜连接失败'}catch(e){$('cloudStatus').textContent='⚠️ 云端排行榜连接失败'}}
-async function submitScore(){const st=$('submitStatus'),player=$('player').value.trim(),country=$('country').value;st.textContent='正在提交排行榜…';try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({player,score:Math.floor(score),country})});st.textContent=r.ok?'☁️ 分数已提交到云端排行榜':'⚠️ 分数提交失败（游戏本身不受影响）'}catch(e){st.textContent='⚠️ 网络连接失败（游戏本身不受影响）'}}
+async function submitScore(){
+  const st=$('submitStatus'),player=$('player').value.trim(),country=$('country').value;
+  const durationSec=Math.max(0,Math.round((Date.now()-runStartedAt)/1000)),finalScore=Math.floor(score);
+  st.textContent='正在提交排行榜…';
+  try{
+    if(!scoreSessionToken) await requestScoreSession(runId);
+    if(!scoreSessionToken){st.textContent='⚠️ 安全排行榜服务暂不可用（游戏本身不受影响）';return}
+    const r=await fetch(SUPABASE_URL+'/functions/v1/submit-score',{
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({token:scoreSessionToken,run_id:runId,player,score:finalScore,country,duration_sec:durationSec})
+    });
+    if(!r.ok){let msg='提交失败';try{const x=await r.json();msg=x.error||msg}catch(e){}st.textContent='⚠️ '+msg+'（游戏本身不受影响）';return}
+    st.textContent='☁️ 分数已通过安全服务提交';
+  }catch(e){st.textContent='⚠️ 网络连接失败（游戏本身不受影响）'}
+}
 async function loadBoard(){show('boardScreen');const box=$('board');box.textContent='加载中…';try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&order=score.desc&limit=20',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(!r.ok)throw 0;const rows=await r.json();box.innerHTML=rows.length?rows.map((x,i)=>`<div class="rank"><b>#${i+1}</b><span>${esc(x.player)} (${esc(x.country||'')})</span><strong>${x.score}</strong></div>`).join(''):'暂无成绩'}catch(e){box.textContent='排行榜暂时无法加载'}}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 window.play=play; window.show=show; window.togglePause=togglePause; function maybeDaily(){ return false; }

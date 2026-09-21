@@ -1,5 +1,10 @@
-// Dodge V2 激励广告配置
-// 真实广告位接入后，将 DODGE_ADS_READY 改为 true，并在这里接入你的广告平台 SDK 回调。
-// 当前默认 false：不会伪造广告奖励。
-window.DODGE_ADS_READY = false;
-window.DODGE_AD_CONFIG = { provider:'google-ad-manager', rewardedAdUnit:'' };
+// Dodge Rush H5 Games Ads configuration.
+// The Google Ad Placement API controls actual availability.
+// Never grant a reward unless adViewed fires.
+window.DODGE_ADS_READY = (typeof window.adBreak === 'function');
+window.DODGE_AD_CONFIG = {
+  provider:'google-h5-games',
+  publisherId:'ca-pub-1697827837177436',
+  rewardedPlacement:'revive-life',
+  interstitialPlacement:'restart-game'
+};

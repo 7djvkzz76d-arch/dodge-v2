@@ -236,7 +236,7 @@ async function submitScore(){
 }
 async function loadBoard(){show('boardScreen');const box=$('board');box.textContent='加载中…';try{const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&order=score.desc&limit=20',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(!r.ok)throw 0;const rows=await r.json();box.innerHTML=rows.length?rows.map((x,i)=>`<div class="rank"><b>#${i+1}</b><span>${esc(x.player)} (${esc(x.country||'')})</span><strong>${x.score}</strong></div>`).join(''):'暂无成绩'}catch(e){box.textContent='排行榜暂时无法加载'}}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-window.play=play; window.show=show; window.togglePause=togglePause; function maybeDaily(){ return false; }
+window.play=play; window.show=show; window.togglePause=togglePause;
 // restore theme + profile name + daily reward on launch
 $('player').value=localStorage.dodgePlayerName||'';$('player').addEventListener('input',()=>localStorage.dodgePlayerName=$('player').value);theme(saveData.theme);ui();draw(0);checkCloud();setTimeout(maybeDaily,500);
 </script></body></html>

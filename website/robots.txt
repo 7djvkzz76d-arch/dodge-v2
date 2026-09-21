@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://7djvkzz76d-arch.github.io/dodge-v2/website/sitemap.xml

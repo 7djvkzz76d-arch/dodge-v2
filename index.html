@@ -124,11 +124,11 @@ async function requestScoreSession(id){
         cache:'no-store'
       });
       const x=await r.json().catch(()=>null);
-      if(r.ok&&x&&x.token&&x.run_id===id){scoreSessionToken=x.token;scoreSessionError='';return true}
+      if(r.ok&&x&&x.token&&x.run_id===id){scoreSessionToken=x.token;scoreSessionError='';return x.token}
       scoreSessionError=(x&&x.error)||('http_'+r.status);
     }catch(e){scoreSessionError='network_error'}
   }
-  return false;
+  return '';
 }
 function newRunId(){try{if(crypto&&crypto.randomUUID)return crypto.randomUUID()}catch(e){}return 'run-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}
 let challengeScore=0;
@@ -136,7 +136,10 @@ function readChallenge(){try{const raw=new URLSearchParams(location.search).get(
 async function play(){try{let n=$('player').value.trim();if(!n){n='玩家';$('player').value=n;try{localStorage.dodgePlayerName=n}catch(e){}};missionReset();reset();runId=newRunId();scoreSessionToken='';scoreSessionError='';runStartedAt=Date.now();running=true;paused=false;revived=false;audioInit();$('gameBtns').style.display='block';$('powerbar').classList.remove('hidden');show('none');last=performance.now();ui();requestScoreSession(runId);trackEvent('game_start',{runId});requestAnimationFrame(loop)}catch(e){running=false;paused=false;console.error('Game start failed',e);toast('游戏启动失败，请刷新页面');}}
 function finish(){running=false;paused=false;stopMusic();$('gameBtns').style.display='none';$('powerbar').classList.add('hidden');const s=Math.floor(score);saveData.runs++;saveData.totalScore+=s;saveData.totalCoins+=earned;saveData.best=Math.max(saveData.best,s);saveData.xp+=s;saveData.missions.play++;saveData.missions.score=Math.max(saveData.missions.score,s);saveData.missions.coins+=earned;saveData.missions.near+=near;saveData.nearMiss+=near;saveData.collisions++;if(near>=1)saveData.xp+=near*5;checkBadges();save();$('finalScore').textContent=s;$('finalBest').textContent=saveData.best;$('earned').textContent=earned;$('runSummary').textContent=`等级经验 +${s+near*5} · 擦身 ${near} · 连击 ${combo}`;$('revive').classList.toggle('hidden',revived);$('adStatus').textContent=revived?'本局已使用复活':'观看完整激励广告可复活一次';show('over');const completedRun={runId,player:$('player').value.trim()||'玩家',country:$('country').value,score:s,durationSec:Math.max(5,Math.round((Date.now()-runStartedAt)/1000))};queueScore(completedRun);$('submitStatus').textContent='💾 本局已保存，正在提交排行榜…';trackEvent('game_over',{runId,score:s,near,earned,durationSec:completedRun.durationSec});submitScore(completedRun)}
 let reviveInFlight=false;
+let pendingRewardAdFn=null;
 function applyReviveReward(){
+  pendingRewardAdFn=null;
+  $('revive').textContent='📺 看广告复活';
   if(revived||reviveInFlight)return;
   reviveInFlight=true;revived=true;running=true;paused=false;score+=20;armor=Math.max(1,armor);
   p.x=W/2;p.y=H*.78;obs=[];particles=[];$('flash').style.opacity=.7;
@@ -148,23 +151,62 @@ function applyReviveReward(){
   setTimeout(()=>{reviveInFlight=false},500);
 }
 function revive(){
-  if(revived||reviveInFlight)return;
+  if(revived)return;
+  if(pendingRewardAdFn){
+    const fn=pendingRewardAdFn;
+    pendingRewardAdFn=null;
+    reviveInFlight=true;
+    $('revive').disabled=true;
+    $('adStatus').textContent='正在播放激励广告…';
+    try{fn()}catch(e){
+      reviveInFlight=false;
+      $('revive').disabled=false;
+      $('adStatus').textContent='广告暂时不可用';
+      trackEvent('revive_error',{runId});
+    }
+    return;
+  }
+  if(reviveInFlight)return;
   if(typeof window.adBreak!=='function'||window.DODGE_ADS_READY!==true){
     $('adStatus').textContent='激励广告暂时不可用';toast('广告暂时不可用');return;
   }
-  reviveInFlight=true;$('adStatus').textContent='正在准备激励广告…';trackEvent('revive_request',{runId});
+  reviveInFlight=true;
+  $('revive').disabled=false;
+  $('adStatus').textContent='正在检查可用广告…';
+  trackEvent('revive_request',{runId});
   let handled=false;
   try{
     window.adBreak({
       type:'reward',name:'revive-life',
-      beforeAd:()=>{stopMusic()},
-      afterAd:()=>{},
-      beforeReward:(showAdFn)=>{showAdFn()},
-      adDismissed:()=>{handled=true;reviveInFlight=false;$('adStatus').textContent='未完整观看广告，无法复活';trackEvent('revive_dismissed',{runId})},
-      adViewed:()=>{handled=true;$('adStatus').textContent='广告完成，正在复活…';applyReviveReward()},
+      beforeAd:()=>{stopMusic();$('revive').disabled=true},
+      afterAd:()=>{$('revive').disabled=false},
+      beforeReward:(showAdFn)=>{
+        pendingRewardAdFn=()=>showAdFn();
+        reviveInFlight=false;
+        $('revive').disabled=false;
+        $('revive').textContent='▶️ 确认观看广告';
+        $('adStatus').textContent='有可用激励广告，点击确认后观看';
+      },
+      adDismissed:()=>{
+        handled=true;
+        pendingRewardAdFn=null;
+        reviveInFlight=false;
+        $('revive').disabled=false;
+        $('revive').textContent='📺 看广告复活';
+        $('adStatus').textContent='未完整观看广告，无法复活';
+        trackEvent('revive_dismissed',{runId})
+      },
+      adViewed:()=>{
+        handled=true;
+        $('revive').textContent='📺 看广告复活';
+        $('adStatus').textContent='广告完成，正在复活…';
+        applyReviveReward();
+      },
       adBreakDone:(info)=>{
-        if(!handled){
+        if(!handled&&!pendingRewardAdFn){
           reviveInFlight=false;
+          $('revive').disabled=false;
+          $('revive').textContent='📺 看广告复活';
           const status=info&&info.breakStatus?info.breakStatus:'no_ad';
           $('adStatus').textContent='当前没有可用广告，请稍后再试';
           trackEvent('revive_no_ad',{runId,status});
@@ -172,7 +214,12 @@ function revive(){
       }
     });
   }catch(e){
-    reviveInFlight=false;$('adStatus').textContent='广告暂时不可用';trackEvent('revive_error',{runId});
+    pendingRewardAdFn=null;
+    reviveInFlight=false;
+    $('revive').disabled=false;
+    $('revive').textContent='📺 看广告复活';
+    $('adStatus').textContent='广告暂时不可用';
+    trackEvent('revive_error',{runId});
   }
 }
 function move(x,y){p.x=Math.max(p.r,Math.min(W-p.r,x));p.y=Math.max(82,Math.min(H-p.r,y))}
@@ -240,9 +287,8 @@ async function submitOneScore(run){
   let token=run.token||'';
   try{
     if(!token){
-      const ok=await requestScoreSession(run.runId);
-      token=scoreSessionToken||'';
-      if(!ok||!token)return false;
+      token=await requestScoreSession(run.runId);
+      if(!token)return false;
     }
     const r=await fetch(SUPABASE_URL+'/functions/v1/submit-score',{
       method:'POST',

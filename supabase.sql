@@ -8,3 +8,11 @@ grant select on table public.leaderboard to anon, authenticated;
 grant all on table public.leaderboard to service_role;
 
 drop policy if exists "Allow public submit" on public.leaderboard;
+
+
+-- Public leaderboard is readable; writes remain server-only.
+create policy "Public leaderboard read"
+on public.leaderboard
+for select
+to anon, authenticated
+using (true);

@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dodge Rush">
 <link rel="apple-touch-icon" href="./app-icon.png">
-<meta name="theme-color" content="#070b16">
+<meta name="theme-color" content="#070b16">\n<link rel="manifest" href="./manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Dodge Rush</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1697827837177436" crossorigin="anonymous"></script>
@@ -318,4 +318,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;',
 window.play=play; window.show=show; window.togglePause=togglePause;
 // restore theme + profile name + daily reward on launch
 $('player').value=localStorage.dodgePlayerName||'';$('player').addEventListener('input',()=>localStorage.dodgePlayerName=$('player').value);addEventListener('online',()=>setTimeout(flushPendingScores,500));theme(saveData.theme);ui();draw(0);readChallenge();checkCloud();setTimeout(()=>{flushPendingScores();maybeDaily()},500);
-</script></body></html>
+</script><script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+</script>
+</body></html>

@@ -360,7 +360,7 @@ async function loadBoard(){
     const best=[...map.values()].sort((a,b)=>Number(b.score)-Number(a.score)).slice(0,20);
     const mine=mineRows.length?Number(mineRows[0].score)||0:0;
     box.innerHTML=(best.length?best.map((x,i)=>`<div class="rank"><b>#${i+1}</b><span>${esc(x.player)} (${esc(x.country||'')})</span><strong>${Number(x.score)||0}</strong></div>`).join(''):'暂无成绩')+
-      (mine?\`<p class="small" style="margin-top:12px">你的云端最高分：<b>\${mine}</b>　（本机最高：<b>\${saveData.best}</b>）</p>\`:'');
+      (mine?`<p class="small" style="margin-top:12px">你的云端最高分：<b>${mine}</b>　（本机最高：<b>${saveData.best}</b>）</p>`:'');
   }catch(e){
     box.textContent='排行榜暂时无法加载，请稍后重试';
   }

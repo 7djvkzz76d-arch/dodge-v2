@@ -339,11 +339,18 @@ async function loadBoard(){
   const box=$('board');
   box.textContent='加载中…';
   try{
-    const r=await fetch(SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&order=score.desc&limit=100',{
-      headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}
-    });
-    if(!r.ok)throw 0;
-    const rows=await r.json();
+    const me=String($('player').value.trim()||'玩家');
+    const country=String($('country').value||'US').toUpperCase();
+    const topUrl=SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&order=score.desc&limit=100';
+    const mineUrl=SUPABASE_URL+'/rest/v1/leaderboard?select=player,score,country&player=eq.'+encodeURIComponent(me)+'&country=eq.'+encodeURIComponent(country)+'&order=score.desc&limit=1';
+    const headers={apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY};
+    const [topRes,mineRes]=await Promise.all([
+      fetch(topUrl,{headers,cache:'no-store'}),
+      fetch(mineUrl,{headers,cache:'no-store'})
+    ]);
+    if(!topRes.ok)throw 0;
+    const rows=await topRes.json();
+    const mineRows=mineRes.ok?await mineRes.json():[];
     const map=new Map();
     for(const x of rows){
       const key=(String(x.player||'玩家').trim().toLowerCase()+'|'+String(x.country||'').toUpperCase());
@@ -351,13 +358,11 @@ async function loadBoard(){
       if(!old||Number(x.score)>Number(old.score))map.set(key,x);
     }
     const best=[...map.values()].sort((a,b)=>Number(b.score)-Number(a.score)).slice(0,20);
-    const me=String($('player').value.trim()||'玩家').toLowerCase();
-    const country=String($('country').value||'').toUpperCase();
-    const mine=rows.filter(x=>String(x.player||'').trim().toLowerCase()===me&&String(x.country||'').toUpperCase()===country).reduce((m,x)=>Math.max(m,Number(x.score)||0),0);
-    box.innerHTML=(best.length?best.map((x,i)=>`<div class="rank"><b>#${i+1}</b><span>${esc(x.player)} (${esc(x.country||'')})</span><strong>${x.score}</strong></div>`).join(''):'暂无成绩')+
+    const mine=mineRows.length?Number(mineRows[0].score)||0:0;
+    box.innerHTML=(best.length?best.map((x,i)=>`<div class="rank"><b>#${i+1}</b><span>${esc(x.player)} (${esc(x.country||'')})</span><strong>${Number(x.score)||0}</strong></div>`).join(''):'暂无成绩')+
       (mine?\`<p class="small" style="margin-top:12px">你的云端最高分：<b>\${mine}</b>　（本机最高：<b>\${saveData.best}</b>）</p>\`:'');
   }catch(e){
-    box.textContent='排行榜暂时无法加载';
+    box.textContent='排行榜暂时无法加载，请稍后重试';
   }
 }
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}

@@ -1,1 +1,1 @@
-{"name":"Dodge Rush","short_name":"Dodge Rush","start_url":"./index.html","display":"standalone","background_color":"#05070b","theme_color":"#05070b","lang":"zh-CN","icons":[{"src":"./app-icon.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
+{"name":"Dodge Rush","short_name":"Dodge Rush","start_url":"./index.html","display":"standalone","background_color":"#05070b","theme_color":"#05070b","lang":"zh-CN","icons":[{"src":"./icon.svg","sizes":"512x512","type":"image/svg+xml","purpose":"any"}]}
